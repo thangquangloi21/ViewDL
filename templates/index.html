@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRACUU - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+<!-- Container chính chứa sidebar và main content -->
+<div class="container" id="container">
+    <!-- Sidebar bên trái, có thể thu gọn -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Header của sidebar với logo -->
+        <div class="sidebar-header">
+            <div class="brand">
+                <span class="brand-icon">🔍</span>
+                <h2 class="logo">TRACUU</h2>
+            </div>
+        </div>
+        <!-- Mô tả sidebar -->
+        <p class="sidebar-desc">Hệ thống tra cứu đơn giản, mở rộng nhanh.</p>
+        <!-- Menu điều hướng -->
+        <ul class="menu">
+            <li><a href="#" class="menu-item active" data-icon="🏠"><span>Dashboard</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Transaction History Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Work Order Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Work Order Bill Browse</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Unconfirmed PO Shipper Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Sales Order Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Quality Order Result Browse(NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Quality Order Modification Browse(NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Purchase Receipt Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Purchase Order Browse (NRI)</span></a></li>
+
+        </ul>
+    </aside>
+
+    <!-- Nội dung chính bên phải -->
+    <main class="main-content">
+        <!-- Header trên cùng với toggle và thông tin -->
+        <header class="topbar">
+            <!-- Bên trái: nút toggle và tiêu đề -->
+            <div class="topbar-l">
+                <button id="sidebarToggle" class="sidebar-toggle" aria-label="Chuyển đổi sidebar">
+                    <svg class="arrow-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path d="M8 6l8 6-8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <div>
+                    <h1>Dashboard TRACUU</h1>
+                    <p class="sub-title">Trang tổng quan hệ thống tra cứu</p>
+                </div>
+            </div>
+            <!-- Bên phải: thông tin user -->
+            <div class="topbar-r">
+                <div class="profile">Admin</div>
+            </div>
+        </header>
+
+        <!-- Grid các card thống kê -->
+        <section class="dashboard-grid">
+            <article class="card">
+                <h3>Tổng bản ghi</h3>
+                <p class="value">{{ data|length }}</p>
+                <small>Hiện có</small>
+            </article>
+            <article class="card">
+                <h3>Hoạt động</h3>
+                <p class="value">{{ data|selectattr('status','equalto','Hoạt động')|list|length }}</p>
+                <small>Đang hoạt động</small>
+            </article>
+            <article class="card">
+                <h3>Tạm dừng</h3>
+                <p class="value">{{ data|selectattr('status','equalto','Tạm dừng')|list|length }}</p>
+                <small>Không hoạt động</small>
+            </article>
+            <article class="card highlight">
+                <h3>API hiện tại</h3>
+                <p class="value" id="apiCount">-</p>
+                <small>Tải lại để cập nhật</small>
+            </article>
+        </section>
+
+        <!-- Panel danh sách dữ liệu -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Danh sách dữ liệu</h2>
+                <button id="loadApiData" class="btn primary">Tải lại API</button>
+            </div>
+            {% if data|length == 0 %}
+                <!-- Placeholder khi không có dữ liệu -->
+                <div class="placeholder">Không có dữ liệu. Vui lòng nạp dữ liệu</div>
+            {% else %}
+                <!-- Bảng hiển thị dữ liệu -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Tên</th><th>Trạng thái</th></tr>
+                        </thead>
+                        <tbody id="dataBody">
+                            {% for item in data %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.status }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Panel dữ liệu API -->
+        <section class="panel">
+            <h2>Dữ liệu API</h2>
+            <ul id="apiDataList" class="api-list"></ul>
+        </section>
+    </main>
+</div>
+
+<script src="/static/js/script.js"></script>
+</body>
+</html>
