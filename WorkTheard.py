@@ -18,7 +18,7 @@ class WorkThread(threading.Thread):
     password = "123456"
     def __init__(self):
         threading.Thread.__init__(self)
-        self.log.info("Application initialized")
+        # self.log.info("Application initialized")
 
     def run(self):
         self.log.info("WorkThread started")
@@ -32,7 +32,10 @@ class WorkThread(threading.Thread):
         except Exception as e:
             self.log.error(f"Error in WorkThread: {e}")
 
+    
 
+    def test(self):
+        print("hello world")
     
     def conn(self):
         # Database connection and data processing
@@ -52,21 +55,13 @@ class WorkThread(threading.Thread):
 
     def queryDB(self, sql):
         try:
-            conect = self.conn()
-            # if data cout > 0 delete table
-            with conect.begin() as connection:
-                result = connection.execute(text(f"{sql}"))
-                row_count = result.scalar()
-                if row_count > 0:
-                    self.log.info("Có dữ liệu trong bảng.")
-                    
-                    
-                    with conect.begin() as connection:
-                        connection.execute(text(f"DELETE FROM [{table}]") )
-                        return
-                else:
-                    # self.log.info(f"The table '{table}' is empty.")
-                    self.log.info("Không có dữ liệu")
-                    return
+            connect = self.conn()
+            with connect.begin() as connection:
+                result = connection.execute(text(sql))
+                # Fetch all rows
+                rows = result.fetchall()
+                self.log.info(f"Query executed successfully. Rows: {len(rows)}")
+                return rows
         except Exception as e:
             self.log.error(f"error: {e}")
+            return None

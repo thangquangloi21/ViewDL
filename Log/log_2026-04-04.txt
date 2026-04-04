@@ -14,3 +14,104 @@
 [2026-04-04 13:20:59] [INFO] RUN SERVER FLASK
 [2026-04-04 13:53:07] [INFO] CLOSE SERVER FLASK
 [2026-04-04 13:53:07] [INFO] CLOSE SERVER FLASK
+[2026-04-04 15:56:04] [INFO] Application initialized
+[2026-04-04 15:58:04] [ERROR] Error connecting to database: No module named 'pyodbc'
+[2026-04-04 15:58:04] [ERROR] error: 'NoneType' object has no attribute 'begin'
+[2026-04-04 15:58:23] [INFO] connect success
+[2026-04-04 15:58:23] [ERROR] error: (pyodbc.InterfaceError) ('IM002', '[IM002] [Microsoft][ODBC Driver Manager] Data source name not found and no default driver specified (0) (SQLDriverConnect)')
+(Background on this error at: https://sqlalche.me/e/20/rvf5)
+[2026-04-04 16:07:07] [INFO] connect success
+[2026-04-04 16:07:07] [ERROR] error: (pyodbc.InterfaceError) ('IM002', '[IM002] [Microsoft][ODBC Driver Manager] Data source name not found and no default driver specified (0) (SQLDriverConnect)')
+(Background on this error at: https://sqlalche.me/e/20/rvf5)
+[2026-04-04 16:09:18] [INFO] connect success
+[2026-04-04 16:09:18] [INFO] Query executed successfully
+[2026-04-04 16:11:29] [INFO] connect success
+[2026-04-04 16:11:29] [ERROR] error: (pyodbc.ProgrammingError) ('42S02', "[42S02] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Invalid object name 'TableName'. (208) (SQLExecDirectW)")
+[SQL: SELECT * FROM TableName]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-04-04 16:12:08] [INFO] connect success
+[2026-04-04 16:12:08] [INFO] Query executed successfully. Rows: 10
+[2026-04-04 16:12:50] [INFO] connect success
+[2026-04-04 16:12:50] [INFO] Query executed successfully. Rows: 10
+[2026-04-04 16:20:48] [INFO] RUN SERVER FLASK
+[2026-04-04 16:20:49] [INFO] RUN SERVER FLASK
+[2026-04-04 16:20:53] [INFO] connect success
+[2026-04-04 16:20:54] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:00] [INFO] connect success
+[2026-04-04 16:21:00] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:01] [INFO] connect success
+[2026-04-04 16:21:01] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:09] [INFO] connect success
+[2026-04-04 16:21:09] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:10] [INFO] connect success
+[2026-04-04 16:21:10] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:10] [INFO] connect success
+[2026-04-04 16:21:10] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:13] [INFO] connect success
+[2026-04-04 16:21:13] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:14] [INFO] connect success
+[2026-04-04 16:21:14] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:14] [INFO] connect success
+[2026-04-04 16:21:15] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:15] [INFO] connect success
+[2026-04-04 16:21:15] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:15] [INFO] connect success
+[2026-04-04 16:21:15] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:16] [INFO] connect success
+[2026-04-04 16:21:16] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:16] [INFO] connect success
+[2026-04-04 16:21:16] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:16] [INFO] connect success
+[2026-04-04 16:21:16] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:16] [INFO] connect success
+[2026-04-04 16:21:17] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:17] [INFO] connect success
+[2026-04-04 16:21:17] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:17] [INFO] connect success
+[2026-04-04 16:21:17] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:17] [INFO] connect success
+[2026-04-04 16:21:17] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:17] [INFO] connect success
+[2026-04-04 16:21:18] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:18] [INFO] connect success
+[2026-04-04 16:21:18] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:18] [INFO] connect success
+[2026-04-04 16:21:18] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:18] [INFO] connect success
+[2026-04-04 16:21:18] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:19] [INFO] connect success
+[2026-04-04 16:21:19] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:21:19] [INFO] connect success
+[2026-04-04 16:21:19] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:25:00] [INFO] CLOSE SERVER FLASK
+[2026-04-04 16:25:00] [INFO] CLOSE SERVER FLASK
+[2026-04-04 16:25:03] [INFO] RUN SERVER FLASK
+[2026-04-04 16:25:04] [INFO] RUN SERVER FLASK
+[2026-04-04 16:25:14] [INFO] connect success
+[2026-04-04 16:25:15] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:25:22] [INFO] connect success
+[2026-04-04 16:25:23] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:25:31] [INFO] connect success
+[2026-04-04 16:25:31] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:26:12] [INFO] connect success
+[2026-04-04 16:26:12] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:26:12] [INFO] connect success
+[2026-04-04 16:26:12] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:30:00] [INFO] CLOSE SERVER FLASK
+[2026-04-04 16:30:00] [INFO] CLOSE SERVER FLASK
+[2026-04-04 16:30:02] [INFO] RUN SERVER FLASK
+[2026-04-04 16:30:03] [INFO] RUN SERVER FLASK
+[2026-04-04 16:30:08] [INFO] connect success
+[2026-04-04 16:30:08] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:31:50] [INFO] CLOSE SERVER FLASK
+[2026-04-04 16:31:50] [INFO] CLOSE SERVER FLASK
+[2026-04-04 16:35:38] [INFO] RUN SERVER FLASK
+[2026-04-04 16:35:40] [INFO] RUN SERVER FLASK
+[2026-04-04 16:35:45] [INFO] connect success
+[2026-04-04 16:35:45] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:39:10] [INFO] connect success
+[2026-04-04 16:39:11] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:39:27] [INFO] connect success
+[2026-04-04 16:39:27] [INFO] Query executed successfully. Rows: 100
+[2026-04-04 16:41:21] [INFO] CLOSE SERVER FLASK
+[2026-04-04 16:41:22] [INFO] CLOSE SERVER FLASK

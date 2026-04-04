@@ -1,8 +1,10 @@
 from flask import Flask, render_template, jsonify
 from log import Logger
 from enum import Enum
+from WorkTheard import WorkThread
 
 log = Logger()
+work = WorkThread()
 
 app = Flask(__name__)
 
@@ -35,6 +37,45 @@ def index():
 @app.route('/api/data')
 def api_data():
     return jsonify(DATA)
+
+# Route Transaction History Browse (NRI): lấy dữ liệu từ database
+@app.route('/transaction')
+def transaction_history():
+    try:
+        sql = "SELECT top 100 * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)]"
+        results = work.queryDB(sql)
+        
+        if results:
+            # Convert row objects to dictionaries
+            rows = []
+            for row in results:
+                rows.append(dict(row._mapping))
+            log.info(f"Fetched {len(rows)} transaction records")
+            return render_template('_transaction.html', transactions=rows)
+        else:
+            log.warning("No transaction data found")
+            return render_template('_transaction.html', transactions=[])
+    except Exception as e:
+        log.error(f"Error fetching transaction history: {e}")
+        return render_template('_transaction.html', transactions=[])
+
+# API endpoint: trả về transaction data dạng JSON
+@app.route('/api/transaction')
+def api_transaction():
+    try:
+        sql = "SELECT top 100 * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)]"
+        results = work.queryDB(sql)
+        
+        if results:
+            rows = []
+            for row in results:
+                rows.append(dict(row._mapping))
+            return jsonify(rows)
+        else:
+            return jsonify([])
+    except Exception as e:
+        log.error(f"Error fetching transaction data: {e}")
+        return jsonify([])
 
 # Khởi chạy server Flask
 if __name__ == '__main__':

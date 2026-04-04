@@ -2,43 +2,312 @@
 <div id="transactionView" class="view hidden">
     <section class="panel search-panel">
         <div class="panel-header">
-            <h2>Tìm kiếm Transaction History</h2>
+            <h2>Transaction History Browse (NRI)</h2>
         </div>
-        <div class="search-fields">
-            <div class="field-group">
-                <label for="searchId">ID</label>
-                <input type="text" id="searchId" placeholder="Nhập ID" />
+        
+        <!-- Search Criteria Section -->
+        <div class="search-criteria" style="padding: 15px; background: #f5f5f5; border-radius: 4px; margin-bottom: 15px;">
+            <div id="transactionSearchConditions"></div>
+            
+            <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <button id="transactionAddConditionBtn" class="btn secondary" style="padding: 8px 15px;">+ Add Condition</button>
+                <button id="transactionSearchBtn" class="btn primary" style="padding: 8px 15px;">Search</button>
+                <button id="transactionClearAllBtn" class="btn secondary" style="padding: 8px 15px;">Clear All</button>
             </div>
-            <div class="field-group">
-                <label for="searchName">Tên</label>
-                <input type="text" id="searchName" placeholder="Nhập tên" />
-            </div>
-            <div class="field-group">
-                <label for="searchStatus">Trạng thái</label>
-                <input type="text" id="searchStatus" placeholder="Nhập trạng thái" />
-            </div>
-            <button id="searchTransactionBtn" class="btn primary">Tìm kiếm</button>
         </div>
+        
         <div class="search-summary">
             <p id="transactionCount">Tìm thấy 0 kết quả</p>
         </div>
-        <div class="table-wrapper">
-            <table>
+        
+        <div class="table-wrapper" style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr><th>ID</th><th>Tên</th><th>Trạng thái</th><th>Mô tả</th></tr>
+                    <tr id="transactionTableHeaders" style="background: #f0f0f0;">
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Index</th>
+                    </tr>
                 </thead>
-                <tbody id="transactionBody"></tbody>
+                <tbody id="transactionTableBody">
+                </tbody>
             </table>
         </div>
     </section>
 </div>
 
-<!-- Template cho table row -->
-<template id="tableRowTemplate">
-    <tr>
-        <td data-field="id"></td>
-        <td data-field="name"></td>
-        <td><span class="status-badge" data-field="status"></span></td>
-        <td data-field="description"></td>
-    </tr>
-</template>
+<script>
+let transactionAllData = [];
+let transactionConditionCount = 0;
+const transactionSearchColumns = ['pt_part_type', 'pt_prod_line', 'pt_um', 'tr_curr', 'tr_date', 'tr_effdate', 'tr_ex_rate', 'tr_ex_rate2', 'tr_line', 'tr_loc', 'tr_lot', 'tr_nbr', 'tr_part', 'tr_price', 'tr_program', 'tr_qty_loc', 'tr_qty_req', 'tr_rmks', 'tr_serial', 'tr_site', 'tr_status', 'tr_time', 'tr_trnbr', 'tr_type', 'tr_userid'];
+const transactionOperators = [
+    { value: 'contains', label: 'contains' },
+    { value: 'equals', label: 'equals' },
+    { value: 'startsWith', label: 'starts with' }
+];
+
+function initTransactionSearch() {
+    console.log('Initializing transaction search...');
+    
+    const addBtn = document.getElementById('transactionAddConditionBtn');
+    const searchBtn = document.getElementById('transactionSearchBtn');
+    const clearBtn = document.getElementById('transactionClearAllBtn');
+    
+    if (addBtn) addBtn.addEventListener('click', transactionAddCondition);
+    if (searchBtn) searchBtn.addEventListener('click', transactionPerformSearch);
+    if (clearBtn) clearBtn.addEventListener('click', transactionClearAllSearch);
+    
+    transactionLoadData();
+}
+
+function transactionLoadData() {
+    fetch('/api/transaction')
+        .then(response => response.json())
+        .then(data => {
+            transactionAllData = data;
+            console.log('Loaded transaction data:', data.length, 'rows');
+            transactionDisplayData(data);
+            if (transactionConditionCount === 0) {
+                transactionAddCondition();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading transaction data:', error);
+            const countEl = document.getElementById('transactionCount');
+            if (countEl) countEl.textContent = 'Lỗi khi tải dữ liệu';
+        });
+}
+
+function transactionAddCondition() {
+    const conditionsDiv = document.getElementById('transactionSearchConditions');
+    if (!conditionsDiv) {
+        console.error('Search conditions container not found');
+        return;
+    }
+    
+    const conditionId = transactionConditionCount++;
+    
+    const conditionDiv = document.createElement('div');
+    conditionDiv.id = `transaction-condition-${conditionId}`;
+    conditionDiv.style.display = 'flex';
+    conditionDiv.style.gap = '10px';
+    conditionDiv.style.marginBottom = '10px';
+    conditionDiv.style.alignItems = 'center';
+    
+    // Column dropdown
+    const columnSelect = document.createElement('select');
+    columnSelect.className = 'transaction-search-column';
+    columnSelect.style.padding = '6px';
+    columnSelect.style.minWidth = '150px';
+    columnSelect.innerHTML = '<option value="">-- Select Column --</option>';
+    transactionSearchColumns.forEach(col => {
+        const option = document.createElement('option');
+        option.value = col;
+        option.textContent = col;
+        columnSelect.appendChild(option);
+    });
+    
+    // Operator dropdown
+    const operatorSelect = document.createElement('select');
+    operatorSelect.className = 'transaction-search-operator';
+    operatorSelect.style.padding = '6px';
+    operatorSelect.style.minWidth = '100px';
+    transactionOperators.forEach(op => {
+        const option = document.createElement('option');
+        option.value = op.value;
+        option.textContent = op.label;
+        operatorSelect.appendChild(option);
+    });
+    operatorSelect.value = 'contains';
+    
+    // Value input
+    const valueInput = document.createElement('input');
+    valueInput.type = 'text';
+    valueInput.className = 'transaction-search-value';
+    valueInput.placeholder = 'Enter value...';
+    valueInput.style.padding = '6px';
+    valueInput.style.minWidth = '150px';
+    valueInput.style.flex = '1';
+    
+    // Remove button
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '−';
+    removeBtn.style.padding = '6px 12px';
+    removeBtn.style.background = '#ff6b6b';
+    removeBtn.style.color = 'white';
+    removeBtn.style.border = 'none';
+    removeBtn.style.borderRadius = '4px';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.addEventListener('click', function() {
+        conditionDiv.remove();
+    });
+    
+    conditionDiv.appendChild(columnSelect);
+    conditionDiv.appendChild(operatorSelect);
+    conditionDiv.appendChild(valueInput);
+    conditionDiv.appendChild(removeBtn);
+    
+    conditionsDiv.appendChild(conditionDiv);
+}
+
+function transactionPerformSearch() {
+    console.log('Performing search...');
+    const conditions = document.querySelectorAll('[id^="transaction-condition-"]');
+    let filteredData = [...transactionAllData];
+    
+    console.log('Starting with', filteredData.length, 'total rows');
+    
+    conditions.forEach((conditionDiv, idx) => {
+        const columnSelect = conditionDiv.querySelector('.transaction-search-column');
+        const operatorSelect = conditionDiv.querySelector('.transaction-search-operator');
+        const valueInput = conditionDiv.querySelector('.transaction-search-value');
+        
+        if (!columnSelect || !operatorSelect || !valueInput) {
+            console.log(`Condition ${idx}: MISSING ELEMENTS`);
+            return;
+        }
+        
+        const column = columnSelect.value;
+        const operator = operatorSelect.value;
+        const value = valueInput.value;
+        
+        if (!column || !value) {
+            console.log(`Condition ${idx}: SKIPPED (empty)`);
+            return;
+        }
+        
+        const valueLower = value.toLowerCase();
+        console.log(`Condition ${idx}: column=${column}, operator=${operator}, value=${value}`);
+        
+        const countBefore = filteredData.length;
+        filteredData = filteredData.filter(row => {
+            const cellValue = String(row[column] || '').toLowerCase();
+            
+            switch(operator) {
+                case 'equals':
+                    return cellValue === valueLower;
+                case 'contains':
+                    return cellValue.includes(valueLower);
+                case 'startsWith':
+                    return cellValue.startsWith(valueLower);
+                default:
+                    return true;
+            }
+        });
+        
+        console.log(`After condition ${idx}: ${countBefore} -> ${filteredData.length} rows`);
+    });
+    
+    console.log('Final result:', filteredData.length, 'rows');
+    transactionDisplayData(filteredData);
+}
+
+function transactionClearAllSearch() {
+    document.querySelectorAll('.transaction-search-value').forEach(input => {
+        input.value = '';
+    });
+    document.querySelectorAll('.transaction-search-column').forEach(select => {
+        select.value = '';
+    });
+    transactionDisplayData(transactionAllData);
+    const countEl = document.getElementById('transactionCount');
+    if (countEl) {
+        countEl.textContent = `Tìm thấy ${transactionAllData.length} kết quả`;
+    }
+}
+
+function transactionDisplayData(data) {
+    const tbody = document.getElementById('transactionTableBody');
+    const headers = document.getElementById('transactionTableHeaders');
+    
+    if (!tbody || !headers) {
+        console.error('Table elements not found');
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        const countEl = document.getElementById('transactionCount');
+        if (countEl) countEl.textContent = 'Tìm thấy 0 kết quả';
+        return;
+    }
+    
+    // Get column names from first row
+    const columns = Object.keys(data[0]);
+    
+    // Only set headers once
+    if (headers.children.length === 1) {
+        columns.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            th.style.padding = '10px';
+            th.style.border = '1px solid #ddd';
+            th.style.textAlign = 'left';
+            th.style.fontWeight = 'bold';
+            th.style.background = '#f0f0f0';
+            headers.appendChild(th);
+        });
+    }
+    
+    // Add data rows
+    data.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #ddd';
+        
+        // Index column
+        const indexTd = document.createElement('td');
+        indexTd.textContent = index + 1;
+        indexTd.style.padding = '10px';
+        indexTd.style.border = '1px solid #ddd';
+        tr.appendChild(indexTd);
+        
+        // Data columns
+        columns.forEach(col => {
+            const td = document.createElement('td');
+            td.textContent = row[col] || '';
+            td.style.padding = '10px';
+            td.style.border = '1px solid #ddd';
+            tr.appendChild(td);
+        });
+        
+        tbody.appendChild(tr);
+    });
+    
+    const countEl = document.getElementById('transactionCount');
+    if (countEl) countEl.textContent = `Tìm thấy ${data.length} kết quả`;
+}
+
+// Initialize when view becomes visible
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing transaction search');
+    setTimeout(initTransactionSearch, 100);
+});
+</script>
+
+<style>
+.btn {
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn.primary {
+    background: #0066cc;
+    color: white;
+}
+
+.btn.primary:hover {
+    background: #0052a3;
+}
+
+.btn.secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn.secondary:hover {
+    background: #d0d0d0;
+}
+</style>
