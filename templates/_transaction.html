@@ -1,0 +1,44 @@
+<!-- Transaction History view partial -->
+<div id="transactionView" class="view hidden">
+    <section class="panel search-panel">
+        <div class="panel-header">
+            <h2>Tìm kiếm Transaction History</h2>
+        </div>
+        <div class="search-fields">
+            <div class="field-group">
+                <label for="searchId">ID</label>
+                <input type="text" id="searchId" placeholder="Nhập ID" />
+            </div>
+            <div class="field-group">
+                <label for="searchName">Tên</label>
+                <input type="text" id="searchName" placeholder="Nhập tên" />
+            </div>
+            <div class="field-group">
+                <label for="searchStatus">Trạng thái</label>
+                <input type="text" id="searchStatus" placeholder="Nhập trạng thái" />
+            </div>
+            <button id="searchTransactionBtn" class="btn primary">Tìm kiếm</button>
+        </div>
+        <div class="search-summary">
+            <p id="transactionCount">Tìm thấy 0 kết quả</p>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Tên</th><th>Trạng thái</th><th>Mô tả</th></tr>
+                </thead>
+                <tbody id="transactionBody"></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Template cho table row -->
+<template id="tableRowTemplate">
+    <tr>
+        <td data-field="id"></td>
+        <td data-field="name"></td>
+        <td><span class="status-badge" data-field="status"></span></td>
+        <td data-field="description"></td>
+    </tr>
+</template>

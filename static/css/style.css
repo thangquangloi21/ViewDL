@@ -52,10 +52,20 @@ table {width: 100%; border-collapse: collapse;} /* Bảng */
 th, td {border: 1px solid #e2e8f0; padding: .74rem .8rem; text-align: left;} /* Ô bảng */
 th {background: #f3f6fc; text-transform: uppercase; font-size: .82rem;} /* Header bảng */
 tr:nth-child(even) td {background: #f8fbff;} /* Dòng chẵn */
+.search-fields {display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end; margin-bottom: 1rem;} /* Layout input tìm kiếm */
+.field-group {display: flex; flex-direction: column; gap: .4rem;} /* Nhóm label + input */
+.field-group label {font-size: .9rem; color: #475569;} /* Label input */
+.field-group input {border: 1px solid #d8e2f3; border-radius: .65rem; padding: .65rem .85rem; background: #fff; color: #0f172a;} /* Input */
+.search-summary {margin-bottom: 1rem; color: #334155; font-size: .95rem;} /* Tóm tắt tìm kiếm */
+.view.hidden {display: none;} /* Ẩn view */
 .api-list {list-style: none; margin-top: .6rem; padding-left: 0;} /* List API */
 .api-list li {background: #f8fbff; border: 1px solid #d8e5f5; border-radius: .45rem; padding: .6rem .75rem; margin-bottom: .35rem;} /* Item API */
-.placeholder {background: #f1f7ff; border: 1px dashed #b8c9e6; border-radius: .65rem; padding: 1rem; text-align: center; color: #5f718f;} /* Placeholder */
-@media (max-width: 900px) { /* Responsive mobile */
+.placeholder {background: #f1f7ff; border: 1px dashed #b8c9e6; border-radius: .65rem; padding: 1rem; text-align: center; color: #5f718f;} /* Placeholder */.loading {text-align: center; padding: 1rem; color: #64748b; font-style: italic;}
+.status-badge {padding: .25rem .5rem; border-radius: .25rem; font-size: .85rem; font-weight: 500;}
+.status-active {background: #dcfce7; color: #166534;}
+.status-inactive {background: #fef2f2; color: #991b1b;}
+.status-pending {background: #fef3c7; color: #92400e;}
+.status-completed {background: #dbeafe; color: #1e40af;}@media (max-width: 900px) { /* Responsive mobile */
   .container {grid-template-columns: 1fr;} /* 1 cột trên mobile */
   .sidebar {position: fixed; left: -100%; top: 0; bottom: 0; width: var(--sidebar-width); z-index: 110;} /* Sidebar overlay */
   .sidebar.open {left: 0;} /* Hiện sidebar */

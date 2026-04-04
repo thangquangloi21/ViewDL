@@ -22,16 +22,16 @@
         <p class="sidebar-desc">Hệ thống tra cứu đơn giản, mở rộng nhanh.</p>
         <!-- Menu điều hướng -->
         <ul class="menu">
-            <li><a href="#" class="menu-item active" data-icon="🏠"><span>Dashboard</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Transaction History Browse (NRI)</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Work Order Browse (NRI)</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Work Order Bill Browse</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Unconfirmed PO Shipper Browse (NRI)</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Sales Order Browse (NRI)</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Quality Order Result Browse(NRI)</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Quality Order Modification Browse(NRI)</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Purchase Receipt Browse (NRI)</span></a></li>
-            <li><a href="#" class="menu-item" data-icon="⚙️"><span>Purchase Order Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item active" data-icon="🏠" data-view="dashboard"><span>Dashboard</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="transaction"><span>Transaction History Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="workOrder"><span>Work Order Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="workOrderBill"><span>Work Order Bill Browse</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="unconfirmedPO"><span>Unconfirmed PO Shipper Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="salesOrder"><span>Sales Order Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="qualityResult"><span>Quality Order Result Browse(NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="qualityModification"><span>Quality Order Modification Browse(NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="purchaseReceipt"><span>Purchase Receipt Browse (NRI)</span></a></li>
+            <li><a href="#" class="menu-item" data-icon="📚" data-view="purchaseOrder"><span>Purchase Order Browse (NRI)</span></a></li>
 
         </ul>
     </aside>
@@ -58,68 +58,11 @@
             </div>
         </header>
 
-        <!-- Grid các card thống kê -->
-        <section class="dashboard-grid">
-            <article class="card">
-                <h3>Tổng bản ghi</h3>
-                <p class="value">{{ data|length }}</p>
-                <small>Hiện có</small>
-            </article>
-            <article class="card">
-                <h3>Hoạt động</h3>
-                <p class="value">{{ data|selectattr('status','equalto','Hoạt động')|list|length }}</p>
-                <small>Đang hoạt động</small>
-            </article>
-            <article class="card">
-                <h3>Tạm dừng</h3>
-                <p class="value">{{ data|selectattr('status','equalto','Tạm dừng')|list|length }}</p>
-                <small>Không hoạt động</small>
-            </article>
-            <article class="card highlight">
-                <h3>API hiện tại</h3>
-                <p class="value" id="apiCount">-</p>
-                <small>Tải lại để cập nhật</small>
-            </article>
-        </section>
-
-        <!-- Panel danh sách dữ liệu -->
-        <section class="panel">
-            <div class="panel-header">
-                <h2>Danh sách dữ liệu</h2>
-                <button id="loadApiData" class="btn primary">Tải lại API</button>
-            </div>
-            {% if data|length == 0 %}
-                <!-- Placeholder khi không có dữ liệu -->
-                <div class="placeholder">Không có dữ liệu. Vui lòng nạp dữ liệu</div>
-            {% else %}
-                <!-- Bảng hiển thị dữ liệu -->
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr><th>ID</th><th>Tên</th><th>Trạng thái</th></tr>
-                        </thead>
-                        <tbody id="dataBody">
-                            {% for item in data %}
-                            <tr>
-                                <td>{{ item.id }}</td>
-                                <td>{{ item.name }}</td>
-                                <td>{{ item.status }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% endif %}
-        </section>
-
-        <!-- Panel dữ liệu API -->
-        <section class="panel">
-            <h2>Dữ liệu API</h2>
-            <ul id="apiDataList" class="api-list"></ul>
-        </section>
+        {% include '_dashboard.html' %}
+        {% include '_transaction.html' %}
+        {% include '_other.html' %}
     </main>
 </div>
-
 <script src="/static/js/script.js"></script>
 </body>
 </html>

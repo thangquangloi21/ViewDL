@@ -1,0 +1,74 @@
+<!-- Dashboard view partial -->
+<div id="dashboardView" class="view active">
+    <!-- Grid các card thống kê -->
+    <section class="dashboard-grid">
+        <article class="card">
+            <h3>Tổng bản ghi</h3>
+            <p class="value">{{ data|length }}</p>
+            <small>Hiện có</small>
+        </article>
+        <article class="card">
+            <h3>Hoạt động</h3>
+            <p class="value">{{ data|selectattr('status','equalto','active')|list|length }}</p>
+            <small>Đang hoạt động</small>
+        </article>
+        <article class="card">
+            <h3>Tạm dừng</h3>
+            <p class="value">{{ data|selectattr('status','equalto','inactive')|list|length }}</p>
+            <small>Không hoạt động</small>
+        </article>
+        <article class="card highlight">
+            <h3>API hiện tại</h3>
+            <p class="value" id="apiCount">-</p>
+            <small>Tải lại để cập nhật</small>
+        </article>
+    </section>
+
+    <!-- Panel danh sách dữ liệu -->
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Danh sách dữ liệu</h2>
+            <button id="loadApiData" class="btn primary">Tải lại API</button>
+        </div>
+        {% if data|length == 0 %}
+            <!-- Placeholder khi không có dữ liệu -->
+            <div class="placeholder">Không có dữ liệu. Vui lòng nạp dữ liệu</div>
+        {% else %}
+            <!-- Bảng hiển thị dữ liệu -->
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Tên</th><th>Trạng thái</th><th>Mô tả</th></tr>
+                    </thead>
+                    <tbody id="dataBody">
+                        {% for item in data %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.name }}</td>
+                            <td><span class="status-badge status-{{ item.status|lower }}">{{ item.status }}</span></td>
+                            <td>{{ item.description }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
+
+        <!-- Panel dữ liệu API -->
+        <section class="panel">
+            <h2>Dữ liệu API</h2>
+            <div id="apiLoading" class="loading hidden">Đang tải...</div>
+            <ul id="apiDataList" class="api-list"></ul>
+        </section>
+    </div>
+
+    <!-- Template cho table row -->
+    <template id="tableRowTemplate">
+        <tr>
+            <td data-field="id"></td>
+            <td data-field="name"></td>
+            <td><span class="status-badge" data-field="status"></span></td>
+            <td data-field="description"></td>
+        </tr>
+    </template>
