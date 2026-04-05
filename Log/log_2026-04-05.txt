@@ -1,0 +1,275 @@
+[2026-04-05 07:52:12] [INFO] RUN SERVER FLASK
+[2026-04-05 07:52:13] [INFO] RUN SERVER FLASK
+[2026-04-05 07:52:16] [ERROR] Error connecting to database: No module named 'pyodbc'
+[2026-04-05 07:52:16] [ERROR] error: 'NoneType' object has no attribute 'begin'
+[2026-04-05 07:53:10] [ERROR] Error connecting to database: No module named 'pyodbc'
+[2026-04-05 07:53:10] [ERROR] error: 'NoneType' object has no attribute 'begin'
+[2026-04-05 10:35:12] [INFO] CLOSE SERVER FLASK
+[2026-04-05 10:35:12] [INFO] CLOSE SERVER FLASK
+[2026-04-05 10:35:22] [INFO] RUN SERVER FLASK
+[2026-04-05 10:35:23] [INFO] RUN SERVER FLASK
+[2026-04-05 10:35:26] [INFO] connect success
+[2026-04-05 10:35:26] [INFO] Query executed successfully. Rows: 100
+[2026-04-05 10:56:38] [INFO] Database engine created successfully
+[2026-04-05 10:56:38] [INFO] ==================================================
+[2026-04-05 10:56:38] [INFO] Starting Flask application
+[2026-04-05 10:56:38] [INFO] Environment: DevelopmentConfig
+[2026-04-05 10:56:38] [INFO] Debug mode: True
+[2026-04-05 10:56:38] [INFO] ==================================================
+[2026-04-05 10:56:38] [INFO] Database connection test successful
+[2026-04-05 10:56:38] [INFO] Database connection verified
+[2026-04-05 10:56:38] [INFO] Database engine created successfully
+[2026-04-05 10:56:38] [INFO] ==================================================
+[2026-04-05 10:56:38] [INFO] Starting Flask application
+[2026-04-05 10:56:38] [INFO] Environment: DevelopmentConfig
+[2026-04-05 10:56:38] [INFO] Debug mode: True
+[2026-04-05 10:56:38] [INFO] ==================================================
+[2026-04-05 10:56:38] [INFO] Database connection test successful
+[2026-04-05 10:56:38] [INFO] Database connection verified
+[2026-04-05 10:56:45] [INFO] Accessed main dashboard
+[2026-04-05 10:56:45] [INFO] API call: /api/data
+[2026-04-05 10:56:45] [WARN] 404 error: /favicon.ico
+[2026-04-05 10:56:45] [INFO] API call: /api/transaction (limit=None)
+[2026-04-05 10:56:45] [ERROR] Database connection error: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Incorrect syntax near '0'. (102) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Invalid usage of the option NEXT in the FETCH statement. (153)")
+[SQL: SELECT * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)] OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-04-05 10:56:45] [ERROR] Error executing query: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Incorrect syntax near '0'. (102) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Invalid usage of the option NEXT in the FETCH statement. (153)")
+[SQL: SELECT * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)] OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-04-05 10:56:45] [INFO] Fetched 0 transaction records
+[2026-04-05 10:56:48] [INFO] Accessed main dashboard
+[2026-04-05 10:56:48] [INFO] API call: /api/data
+[2026-04-05 10:56:48] [INFO] API call: /api/transaction (limit=None)
+[2026-04-05 10:56:48] [ERROR] Database connection error: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Incorrect syntax near '0'. (102) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Invalid usage of the option NEXT in the FETCH statement. (153)")
+[SQL: SELECT * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)] OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-04-05 10:56:48] [ERROR] Error executing query: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Incorrect syntax near '0'. (102) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Invalid usage of the option NEXT in the FETCH statement. (153)")
+[SQL: SELECT * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)] OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-04-05 10:56:48] [INFO] Fetched 0 transaction records
+[2026-04-05 10:57:18] [INFO] Database engine created successfully
+[2026-04-05 10:57:18] [INFO] ==================================================
+[2026-04-05 10:57:18] [INFO] Starting Flask application
+[2026-04-05 10:57:18] [INFO] Environment: DevelopmentConfig
+[2026-04-05 10:57:18] [INFO] Debug mode: True
+[2026-04-05 10:57:18] [INFO] ==================================================
+[2026-04-05 10:57:18] [INFO] Database connection test successful
+[2026-04-05 10:57:18] [INFO] Database connection verified
+[2026-04-05 11:00:55] [INFO] Database engine created successfully
+[2026-04-05 11:00:55] [INFO] ==================================================
+[2026-04-05 11:00:55] [INFO] Starting database tests
+[2026-04-05 11:00:55] [INFO] ==================================================
+[2026-04-05 11:00:55] [INFO] Testing database connection...
+[2026-04-05 11:00:55] [INFO] Database connection test successful
+[2026-04-05 11:00:55] [INFO] ✓ Database connection successful
+[2026-04-05 11:00:55] [INFO] Testing transaction query...
+[2026-04-05 11:00:55] [INFO] Query executed successfully. Rows: 10
+[2026-04-05 11:00:55] [INFO] ✓ Retrieved 10 transaction records
+[2026-04-05 11:00:55] [INFO]   Row 1: ['tr_trnbr', 'pt_prod_line', 'pt_um', 'pt_part_type', 'tr_type']
+[2026-04-05 11:00:55] [INFO]   Row 2: ['tr_trnbr', 'pt_prod_line', 'pt_um', 'pt_part_type', 'tr_type']
+[2026-04-05 11:00:55] [INFO]   Row 3: ['tr_trnbr', 'pt_prod_line', 'pt_um', 'pt_part_type', 'tr_type']
+[2026-04-05 11:00:55] [INFO] ==================================================
+[2026-04-05 11:00:55] [INFO] Test Results:
+[2026-04-05 11:00:55] [INFO]   Database Connection: ✓ PASSED
+[2026-04-05 11:00:55] [INFO]   Transaction Query: ✓ PASSED
+[2026-04-05 11:00:55] [INFO] ==================================================
+[2026-04-05 11:02:11] [INFO] Database engine created successfully
+[2026-04-05 11:02:11] [INFO] ==================================================
+[2026-04-05 11:02:11] [INFO] Starting Flask application
+[2026-04-05 11:02:11] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:02:11] [INFO] Debug mode: True
+[2026-04-05 11:02:11] [INFO] ==================================================
+[2026-04-05 11:02:11] [INFO] Database connection test successful
+[2026-04-05 11:02:11] [INFO] Database connection verified
+[2026-04-05 11:02:20] [INFO] Database engine created successfully
+[2026-04-05 11:02:20] [INFO] ==================================================
+[2026-04-05 11:02:20] [INFO] Starting Flask application
+[2026-04-05 11:02:20] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:02:20] [INFO] Debug mode: True
+[2026-04-05 11:02:20] [INFO] ==================================================
+[2026-04-05 11:02:20] [INFO] Database connection test successful
+[2026-04-05 11:02:20] [INFO] Database connection verified
+[2026-04-05 11:02:20] [INFO] Database engine created successfully
+[2026-04-05 11:02:20] [INFO] ==================================================
+[2026-04-05 11:02:20] [INFO] Starting Flask application
+[2026-04-05 11:02:20] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:02:20] [INFO] Debug mode: True
+[2026-04-05 11:02:20] [INFO] ==================================================
+[2026-04-05 11:02:20] [INFO] Database connection test successful
+[2026-04-05 11:02:20] [INFO] Database connection verified
+[2026-04-05 11:02:23] [INFO] Accessed main dashboard
+[2026-04-05 11:02:23] [INFO] API call: /api/data
+[2026-04-05 11:02:23] [INFO] API call: /api/transaction (limit=None)
+[2026-04-05 11:02:24] [INFO] Query executed successfully. Rows: 100
+[2026-04-05 11:02:24] [INFO] Fetched 100 transaction records
+[2026-04-05 11:02:28] [INFO] Accessed main dashboard
+[2026-04-05 11:02:28] [INFO] API call: /api/data
+[2026-04-05 11:02:28] [INFO] API call: /api/transaction (limit=None)
+[2026-04-05 11:02:28] [INFO] Query executed successfully. Rows: 100
+[2026-04-05 11:02:28] [INFO] Fetched 100 transaction records
+[2026-04-05 11:02:33] [INFO] Accessed main dashboard
+[2026-04-05 11:02:33] [INFO] API call: /api/data
+[2026-04-05 11:02:33] [INFO] API call: /api/transaction (limit=None)
+[2026-04-05 11:02:33] [INFO] Query executed successfully. Rows: 100
+[2026-04-05 11:02:33] [INFO] Fetched 100 transaction records
+[2026-04-05 11:03:34] [INFO] Database engine created successfully
+[2026-04-05 11:03:34] [INFO] ==================================================
+[2026-04-05 11:03:34] [INFO] Starting Flask application
+[2026-04-05 11:03:34] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:03:34] [INFO] Debug mode: True
+[2026-04-05 11:03:34] [INFO] ==================================================
+[2026-04-05 11:03:34] [INFO] Database connection test successful
+[2026-04-05 11:03:34] [INFO] Database connection verified
+[2026-04-05 11:03:35] [INFO] Database engine created successfully
+[2026-04-05 11:03:35] [INFO] ==================================================
+[2026-04-05 11:03:35] [INFO] Starting Flask application
+[2026-04-05 11:03:35] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:03:35] [INFO] Debug mode: True
+[2026-04-05 11:03:35] [INFO] ==================================================
+[2026-04-05 11:03:35] [INFO] Database connection test successful
+[2026-04-05 11:03:35] [INFO] Database connection verified
+[2026-04-05 11:03:38] [INFO] Database engine created successfully
+[2026-04-05 11:03:38] [INFO] ==================================================
+[2026-04-05 11:03:38] [INFO] Starting Flask application
+[2026-04-05 11:03:38] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:03:38] [INFO] Debug mode: True
+[2026-04-05 11:03:38] [INFO] ==================================================
+[2026-04-05 11:03:38] [INFO] Database connection test successful
+[2026-04-05 11:03:38] [INFO] Database connection verified
+[2026-04-05 11:03:38] [INFO] Database engine created successfully
+[2026-04-05 11:03:38] [INFO] ==================================================
+[2026-04-05 11:03:38] [INFO] Starting Flask application
+[2026-04-05 11:03:38] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:03:38] [INFO] Debug mode: True
+[2026-04-05 11:03:38] [INFO] ==================================================
+[2026-04-05 11:03:38] [INFO] Database connection test successful
+[2026-04-05 11:03:38] [INFO] Database connection verified
+[2026-04-05 11:03:40] [INFO] Database engine created successfully
+[2026-04-05 11:03:40] [INFO] ==================================================
+[2026-04-05 11:03:40] [INFO] Starting Flask application
+[2026-04-05 11:03:40] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:03:40] [INFO] Debug mode: True
+[2026-04-05 11:03:40] [INFO] ==================================================
+[2026-04-05 11:03:40] [INFO] Database connection test successful
+[2026-04-05 11:03:40] [INFO] Database connection verified
+[2026-04-05 11:03:41] [INFO] Database engine created successfully
+[2026-04-05 11:03:41] [INFO] ==================================================
+[2026-04-05 11:03:41] [INFO] Starting Flask application
+[2026-04-05 11:03:41] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:03:41] [INFO] Debug mode: True
+[2026-04-05 11:03:41] [INFO] ==================================================
+[2026-04-05 11:03:41] [INFO] Database connection test successful
+[2026-04-05 11:03:41] [INFO] Database connection verified
+[2026-04-05 11:06:20] [INFO] Database engine created successfully
+[2026-04-05 11:06:20] [INFO] ==================================================
+[2026-04-05 11:06:20] [INFO] Starting database tests
+[2026-04-05 11:06:20] [INFO] ==================================================
+[2026-04-05 11:06:20] [INFO] Testing database connection...
+[2026-04-05 11:06:20] [INFO] Database connection test successful
+[2026-04-05 11:06:20] [INFO] ✓ Database connection successful
+[2026-04-05 11:06:20] [INFO] Testing transaction query...
+[2026-04-05 11:06:20] [ERROR] ✗ Transaction query failed: 'DatabaseManager' object has no attribute 'fetch_all'
+[2026-04-05 11:06:20] [INFO] ==================================================
+[2026-04-05 11:06:20] [INFO] Test Results:
+[2026-04-05 11:06:20] [INFO]   Database Connection: ✓ PASSED
+[2026-04-05 11:06:20] [INFO]   Transaction Query: ✗ FAILED
+[2026-04-05 11:06:20] [INFO] ==================================================
+[2026-04-05 11:06:29] [INFO] Database engine created successfully
+[2026-04-05 11:06:29] [INFO] ==================================================
+[2026-04-05 11:06:29] [INFO] Starting Flask application
+[2026-04-05 11:06:29] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:06:29] [INFO] Debug mode: True
+[2026-04-05 11:06:29] [INFO] ==================================================
+[2026-04-05 11:06:29] [INFO] Database engine created successfully
+[2026-04-05 11:06:29] [INFO] ==================================================
+[2026-04-05 11:06:29] [INFO] Starting Flask application
+[2026-04-05 11:06:29] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:06:29] [INFO] Debug mode: True
+[2026-04-05 11:06:29] [INFO] ==================================================
+[2026-04-05 11:06:29] [INFO] Database connection test successful
+[2026-04-05 11:06:29] [INFO] Database connection verified
+[2026-04-05 11:06:29] [INFO] Database connection test successful
+[2026-04-05 11:06:29] [INFO] Database connection verified
+[2026-04-05 11:06:47] [INFO] Database engine created successfully
+[2026-04-05 11:06:47] [INFO] ==================================================
+[2026-04-05 11:06:47] [INFO] Starting database tests
+[2026-04-05 11:06:47] [INFO] ==================================================
+[2026-04-05 11:06:47] [INFO] Testing database connection...
+[2026-04-05 11:06:47] [INFO] Database connection test successful
+[2026-04-05 11:06:47] [INFO] ✓ Database connection successful
+[2026-04-05 11:06:47] [INFO] Testing transaction query...
+[2026-04-05 11:08:15] [INFO] Database engine created successfully
+[2026-04-05 11:08:15] [INFO] Database engine created successfully
+[2026-04-05 11:08:15] [INFO] ==================================================
+[2026-04-05 11:08:15] [INFO] Starting Flask application
+[2026-04-05 11:08:15] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:08:15] [INFO] ==================================================
+[2026-04-05 11:08:15] [INFO] ==================================================
+[2026-04-05 11:08:15] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:08:15] [INFO] Debug mode: True
+[2026-04-05 11:08:15] [INFO] ==================================================
+[2026-04-05 11:08:15] [INFO] Database connection test successful
+[2026-04-05 11:08:15] [INFO] Database connection verified
+[2026-04-05 11:08:15] [INFO] Database connection test successful
+[2026-04-05 11:08:15] [INFO] Database connection verified
+[2026-04-05 11:09:22] [INFO] Database engine created successfully
+[2026-04-05 11:09:22] [INFO] ==================================================
+[2026-04-05 11:09:22] [INFO] ==================================================
+[2026-04-05 11:09:22] [INFO] Starting Flask application
+[2026-04-05 11:09:22] [INFO] Starting Flask application
+[2026-04-05 11:09:22] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:09:22] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:09:22] [INFO] Debug mode: True
+[2026-04-05 11:09:22] [INFO] Debug mode: True
+[2026-04-05 11:09:22] [INFO] ==================================================
+[2026-04-05 11:09:22] [INFO] ==================================================
+[2026-04-05 11:09:22] [INFO] Database connection test successful
+[2026-04-05 11:09:22] [INFO] Database connection verified
+[2026-04-05 11:09:22] [INFO] Database connection test successful
+[2026-04-05 11:09:22] [INFO] Database connection verified
+[2026-04-05 11:10:05] [INFO] Database engine created successfully
+[2026-04-05 11:10:05] [INFO] ==================================================
+[2026-04-05 11:10:05] [INFO] Starting Flask application
+[2026-04-05 11:10:05] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:10:05] [INFO] Debug mode: True
+[2026-04-05 11:10:05] [INFO] ==================================================
+[2026-04-05 11:10:05] [INFO] Database connection test successful
+[2026-04-05 11:10:05] [INFO] Database connection verified
+[2026-04-05 11:10:05] [INFO] Database engine created successfully
+[2026-04-05 11:10:05] [INFO] ==================================================
+[2026-04-05 11:10:05] [INFO] Starting Flask application
+[2026-04-05 11:10:05] [INFO] Environment: DevelopmentConfig
+[2026-04-05 11:10:05] [INFO] Debug mode: True
+[2026-04-05 11:10:05] [INFO] ==================================================
+[2026-04-05 11:10:05] [INFO] Database connection test successful
+[2026-04-05 11:10:05] [INFO] Database connection verified
+[2026-04-05 11:13:54] [INFO] API call: /api/transaction (conditions=0, limit=None)
+[2026-04-05 11:13:54] [INFO] Executing search query with 0 conditions
+[2026-04-05 11:13:54] [INFO] Parameterized query executed successfully. Rows: 100
+[2026-04-05 11:13:54] [INFO] Search returned 100 records
+[2026-04-05 11:26:22] [INFO] API call: /api/transaction (conditions=0, limit=None)
+[2026-04-05 11:26:22] [INFO] Executing search query with 0 conditions
+[2026-04-05 11:26:22] [INFO] Parameterized query executed successfully. Rows: 100
+[2026-04-05 11:26:22] [INFO] Search returned 100 records
+[2026-04-05 11:26:36] [INFO] API call: /api/transaction (conditions=0, limit=None)
+[2026-04-05 11:26:36] [INFO] Executing search query with 0 conditions
+[2026-04-05 11:26:36] [INFO] Parameterized query executed successfully. Rows: 100
+[2026-04-05 11:26:36] [INFO] Search returned 100 records
+[2026-04-05 11:27:41] [INFO] API call: /api/transaction (conditions=0, limit=None)
+[2026-04-05 11:27:41] [INFO] Executing search query with 0 conditions
+[2026-04-05 11:27:41] [INFO] Parameterized query executed successfully. Rows: 100
+[2026-04-05 11:27:41] [INFO] Search returned 100 records
+[2026-04-05 11:27:54] [INFO] Accessed main dashboard
+[2026-04-05 11:27:54] [INFO] API call: /api/data
+[2026-04-05 11:27:54] [INFO] API call: /api/transaction (conditions=0, limit=None)
+[2026-04-05 11:27:54] [INFO] Executing search query with 0 conditions
+[2026-04-05 11:27:55] [INFO] Parameterized query executed successfully. Rows: 100
+[2026-04-05 11:27:55] [INFO] Search returned 100 records
+[2026-04-05 11:28:37] [ERROR] Database connection error: 
+[2026-04-05 11:28:37] [ERROR] Error executing parameterized query: 
+[2026-04-05 11:29:33] [WARN] ✗ No transaction records found
+[2026-04-05 11:29:33] [INFO] ==================================================
+[2026-04-05 11:29:33] [INFO] Test Results:
+[2026-04-05 11:29:33] [INFO]   Database Connection: ✓ PASSED
+[2026-04-05 11:29:33] [INFO]   Transaction Query: ✗ FAILED
+[2026-04-05 11:29:33] [INFO] ==================================================

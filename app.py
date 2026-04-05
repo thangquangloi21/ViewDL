@@ -1,20 +1,29 @@
-from flask import Flask, render_template, jsonify
+"""
+Flask application for NRI (Non-Recoverable Item) transaction tracking system
+"""
+from flask import Flask, render_template, jsonify, request
 from log import Logger
+from database import DatabaseManager
+from config import get_config
 from enum import Enum
-from WorkTheard import WorkThread
 
-log = Logger()
-work = WorkThread()
-
+# Initialize
+config = get_config()
+logger = Logger(level=config.LOG_LEVEL)
+db = DatabaseManager()
 app = Flask(__name__)
+app.config['SECRET_KEY'] = config.SECRET_KEY
+
 
 class Status(Enum):
+    """Status enum for data"""
     ACTIVE = "active"
     INACTIVE = "inactive"
     PENDING = "pending"
     COMPLETED = "completed"
 
-# Dữ liệu mẫu cho hệ thống tra cứu
+
+# Sample data for demonstration
 DATA = [
     {"id": 1, "name": "Nội dung 1", "status": Status.ACTIVE.value, "description": "Mô tả chi tiết về nội dung 1"},
     {"id": 2, "name": "Nội dung 2", "status": Status.INACTIVE.value, "description": "Mô tả chi tiết về nội dung 2"},
@@ -28,57 +37,94 @@ DATA = [
     {"id": 10, "name": "Nội dung 10", "status": Status.INACTIVE.value, "description": "Mô tả chi tiết về nội dung 10"},
 ]
 
-# Route chính: hiển thị trang dashboard
+
+def _fetch_transaction_data(limit=None):
+    """
+    Fetch transaction data from database
+    
+    Args:
+        limit (int): Optional limit for records
+        
+    Returns:
+        list: Transaction data
+    """
+    try:
+        sql = "SELECT * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)]"
+        data = db.fetch_all(sql, limit=limit or config.DB_QUERY_LIMIT)
+        logger.info(f"Fetched {len(data)} transaction records")
+        return data
+    except Exception as e:
+        logger.error(f"Error fetching transaction data: {e}")
+        return []
+
+
 @app.route('/')
 def index():
+    """Main dashboard page"""
+    logger.info("Accessed main dashboard")
     return render_template('index.html', data=DATA)
 
-# API endpoint: trả về dữ liệu JSON cho AJAX
+
 @app.route('/api/data')
 def api_data():
+    """API endpoint for sample data"""
+    logger.info("API call: /api/data")
     return jsonify(DATA)
 
-# Route Transaction History Browse (NRI): lấy dữ liệu từ database
+
 @app.route('/transaction')
 def transaction_history():
-    try:
-        sql = "SELECT top 100 * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)]"
-        results = work.queryDB(sql)
-        
-        if results:
-            # Convert row objects to dictionaries
-            rows = []
-            for row in results:
-                rows.append(dict(row._mapping))
-            log.info(f"Fetched {len(rows)} transaction records")
-            return render_template('_transaction.html', transactions=rows)
-        else:
-            log.warning("No transaction data found")
-            return render_template('_transaction.html', transactions=[])
-    except Exception as e:
-        log.error(f"Error fetching transaction history: {e}")
-        return render_template('_transaction.html', transactions=[])
+    """Transaction history page"""
+    logger.info("Accessed transaction history page")
+    transactions = _fetch_transaction_data()
+    return render_template('_transaction.html', transactions=transactions)
 
-# API endpoint: trả về transaction data dạng JSON
+
 @app.route('/api/transaction')
 def api_transaction():
-    try:
-        sql = "SELECT top 100 * FROM [Data_qad].[dbo].[Transaction History Browse (NRI)]"
-        results = work.queryDB(sql)
-        
-        if results:
-            rows = []
-            for row in results:
-                rows.append(dict(row._mapping))
-            return jsonify(rows)
-        else:
-            return jsonify([])
-    except Exception as e:
-        log.error(f"Error fetching transaction data: {e}")
-        return jsonify([])
+    """API endpoint for transaction data (JSON format)"""
+    limit = request.args.get('limit', type=int)
+    logger.info(f"API call: /api/transaction (limit={limit})")
+    data = _fetch_transaction_data(limit=limit)
+    return jsonify(data)
 
-# Khởi chạy server Flask
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint"""
+    db_healthy = db.check_connection()
+    return jsonify({
+        'status': 'healthy' if db_healthy else 'unhealthy',
+        'database': 'connected' if db_healthy else 'disconnected'
+    }), 200 if db_healthy else 503
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors"""
+    logger.warning(f"404 error: {request.path}")
+    return jsonify({'error': 'Not found'}), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors"""
+    logger.error(f"500 error: {str(error)}")
+    return jsonify({'error': 'Internal server error'}), 500
+
+
 if __name__ == '__main__':
-    log.info("RUN SERVER FLASK")
-    app.run(host='0.0.0.0', debug=True, port=5000)
-    log.info("CLOSE SERVER FLASK")
+    logger.info("=" * 50)
+    logger.info("Starting Flask application")
+    logger.info(f"Environment: {config.__class__.__name__}")
+    logger.info(f"Debug mode: {config.DEBUG}")
+    logger.info("=" * 50)
+    
+    # Check database connection before starting
+    if db.check_connection():
+        logger.info("Database connection verified")
+        app.run(host=config.HOST, debug=config.DEBUG, port=config.PORT)
+    else:
+        logger.error("Failed to connect to database. Exiting.")
+    
+    logger.info("Flask application stopped")
