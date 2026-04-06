@@ -1,364 +1,222 @@
-# 🎯 TRACUUQAD - Project Documentation Index
+# NRI Transaction Tracking System
 
-**Last Updated**: 2026-04-05 | **Version**: 2.0 (Optimized)
-
----
-
-## 📖 DOCUMENTATION GUIDE
-
-Welcome to TRACUUQAD - NRI Transaction History Browse System. This directory contains comprehensive documentation to help you get started and maintain the project.
-
-### 🚀 Getting Started (Pick One)
-
-| Document | Purpose | Best For |
-|----------|---------|----------|
-| **[QUICK_START.md](QUICK_START.md)** | ⚡ Fast setup guide | First time setup, quick reference |
-| **[OPTIMIZATION_SUMMARY.txt](OPTIMIZATION_SUMMARY.txt)** | 📊 What changed | Understanding recent improvements |
-| **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** | 🔄 Upgrade from v1 | Developers updating old code |
-
-### 📚 Detailed References
-
-| Document | Purpose | Best For |
-|----------|---------|----------|
-| **[BEST_PRACTICES.md](BEST_PRACTICES.md)** | 💡 Code standards | Writing new code, code review |
-| **[OPTIMIZATION_REPORT.md](OPTIMIZATION_REPORT.md)** | 📈 Technical details | Understanding improvements, performance tuning |
+Flask web application for searching and viewing transaction history data from SQL Server (QAD ERP).
 
 ---
 
-## 🎯 DECISION TREE - Which Document to Read?
+## Features
 
-```
-START HERE
-    ↓
-"I just cloned this project"
-    ├─ YES → Read QUICK_START.md
-    │
-"I want to upgrade from old version"
-    ├─ YES → Read MIGRATION_GUIDE.md
-    │
-"What's new in this version?"
-    ├─ YES → Read OPTIMIZATION_SUMMARY.txt
-    │
-"I need to write clean code"
-    ├─ YES → Read BEST_PRACTICES.md
-    │
-"I want all technical details"
-    ├─ YES → Read OPTIMIZATION_REPORT.md
-```
+- **Transaction History Search** — Dynamic multi-condition search with column whitelist and parameterized queries (SQL-injection safe)
+- **Dashboard View** — Overview panel with sample data loaded via REST API
+- **Multi-view Sidebar** — Work Order, Sales Order, Purchase Order, Quality, and more
+- **Application Factory Pattern** — Blueprint-based modular routing
+- **SQL Server Integration** — SQLAlchemy connection pool with `ODBC Driver 18 for SQL Server`
+- **Production Ready** — Waitress WSGI server for Windows deployment
+- **Environment-based Config** — All secrets in `.env`, never hardcoded
+- **Thread-safe Logging** — Daily rotating log files under `Log/`
 
 ---
 
-## 📂 PROJECT STRUCTURE
+## Tech Stack
 
-```
+| Layer      | Technology                                     |
+|------------|------------------------------------------------|
+| Backend    | Python 3.10+, Flask 2.3+                       |
+| ORM / DB   | SQLAlchemy 2.0+, pyodbc, SQL Server (ODBC 18)  |
+| Frontend   | Vanilla JS (ES2020), HTML5, CSS3               |
+| Config     | python-dotenv                                  |
+| Production | Waitress 2.1+                                  |
+
+---
+
+## Project Structure
+
+```text
 tracuuqad/
-├── 📖 Documentation (READ THESE!)
-│   ├── README.md                    ← You are here!
-│   ├── QUICK_START.md               ← Start here
-│   ├── OPTIMIZATION_SUMMARY.txt     ← What changed
-│   ├── MIGRATION_GUIDE.md           ← Upgrade guide
-│   ├── BEST_PRACTICES.md            ← Code standards
-│   └── OPTIMIZATION_REPORT.md       ← Technical details
+├── app.py                  # Application factory (create_app)
+├── config.py               # Environment-based configuration classes
+├── constants.py            # Security whitelist, enums, sample data
+├── database.py             # DatabaseManager — connection pool, fetch_all()
+├── log.py                  # Thread-safe daily-rotating logger
+├── wsgi.py                 # Production WSGI entry-point
+├── requirements.txt
+├── test.py                 # DB connectivity & query tests
+├── .env.example            # Config template — copy to .env
 │
-├── ⚙️ Configuration Files
-│   ├── .env                         ← Database credentials (DON'T COMMIT!)
-│   ├── config.py                    ← Configuration management
-│   ├── requirements.txt             ← Python dependencies
-│   └── .gitignore                   ← Git ignore patterns
+├── routes/
+│   ├── pages.py            # Page blueprints:  GET /   GET /health
+│   └── api.py              # API blueprints:   /api/data  /api/transaction  /api/transaction/search
 │
-├── 🐍 Python Application
-│   ├── app.py                       ← Flask application (main)
-│   ├── database.py                  ← Database manager (NEW!)
-│   ├── log.py                       ← Logging with rotation
-│   ├── test.py                      ← Tests
-│   └── WorkTheard.py                ← (DEPRECATED - kept for reference)
+├── templates/
+│   ├── index.html          # Shell layout
+│   ├── _dashboard.html     # Dashboard partial
+│   ├── _transaction.html   # Transaction History partial
+│   └── _other.html         # Other views partial
 │
-├── 🎨 Frontend Files
-│   ├── templates/
-│   │   ├── index.html
-│   │   ├── _dashboard.html
-│   │   ├── _transaction.html        ← Optimized JavaScript
-│   │   └── _other.html
-│   │
-│   └── static/
-│       ├── css/
-│       │   └── style.css
-│       └── js/
-│           └── script.js
+├── static/
+│   ├── css/style.css
+│   └── js/
+│       ├── script.js       # Sidebar, view-switching, dashboard data
+│       └── transaction.js  # Transaction search logic
 │
-└── 📝 Generated Files
-    └── Log/                         ← Application logs
-        ├── log_2026-04-04.txt
-        └── log_2026-04-05.txt
+└── Log/                    # Runtime log files (gitignored)
 ```
 
 ---
 
-## 🚀 QUICK COMMANDS
+## Requirements
 
-### First Time Setup
+- Python 3.10 or newer
+- Microsoft [ODBC Driver 18 for SQL Server](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server)
+- Access to a SQL Server instance with the `Data_qad` database
+
+---
+
+## Setup
+
+### 1. Create virtual environment
+
 ```bash
-# 1. Install dependencies
-pip install -r requirements.txt
-
-# 2. Test database connection
-python test.py
-
-# 3. Start application
-python app.py
-
-# 4. Open in browser
-http://localhost:5000
+python -m venv .venv
+.venv\Scripts\activate        # Windows
+# source .venv/bin/activate   # Linux / macOS
 ```
 
-### Daily Operations
+### 2. Install dependencies
+
 ```bash
-# Start development server
+pip install -r requirements.txt
+```
+
+### 3. Configure environment
+
+```bash
+copy .env.example .env
+```
+
+Edit `.env` and fill in your actual values:
+
+```ini
+FLASK_ENV=development
+SECRET_KEY=<generate-a-long-random-string>
+
+DB_SERVER=10.x.x.x
+DB_DATABASE=Data_qad
+DB_USERNAME=your-username
+DB_PASSWORD=your-password
+DB_DRIVER=ODBC Driver 18 for SQL Server
+DB_QUERY_LIMIT=100
+
+HOST=0.0.0.0
+PORT=5000
+LOG_LEVEL=INFO
+```
+
+> **Tip** — Generate a secret key:
+>
+> ```bash
+> python -c "import secrets; print(secrets.token_hex(32))"
+> ```
+
+---
+
+## Running
+
+### Development
+
+```bash
 python app.py
+```
 
-# View logs
-tail -f Log/log_*.txt
+Server starts at `http://127.0.0.1:5000`.  
+If the database is unreachable the app still starts and logs a WARNING — the UI loads but data calls return errors.
 
-# Health check
+### Production (Windows — Waitress)
+
+```bash
+waitress-serve --host=0.0.0.0 --port=5000 wsgi:app
+```
+
+### Production (Linux / Docker — Gunicorn)
+
+```bash
+gunicorn --workers=4 --bind=0.0.0.0:5000 wsgi:app
+```
+
+---
+
+## API Endpoints
+
+| Method | Path                      | Description                               |
+|--------|---------------------------|-------------------------------------------|
+| GET    | `/`                       | Main dashboard (HTML)                     |
+| GET    | `/health`                 | Health check — returns DB status (JSON)   |
+| GET    | `/api/data`               | Sample/demo dataset (JSON)                |
+| GET    | `/api/transaction`        | Transaction records; optional `?limit=N`  |
+| POST   | `/api/transaction/search` | Dynamic server-side search (JSON)         |
+
+### POST `/api/transaction/search` — Request body
+
+```json
+{
+  "conditions": [
+    { "column": "tr_part",   "operator": "contains",   "value": "ABC" },
+    { "column": "tr_loc",    "operator": "equals",     "value": "WH1" },
+    { "column": "tr_userid", "operator": "startswith", "value": "john" }
+  ],
+  "limit": 100
+}
+```
+
+**Operators:** `contains` | `equals` | `startswith`
+
+Column names are validated against a fixed whitelist (`TRANSACTION_ALLOWED_COLUMNS` in `constants.py`).  
+Values are always bound as SQLAlchemy parameters — never interpolated into the SQL string.
+
+---
+
+## Database Tests
+
+```bash
+python test.py
+```
+
+Tests DB connectivity and runs a sample transaction query, printing results to console and `Log/`.
+
+---
+
+## Health Check
+
+```bash
 curl http://localhost:5000/health
 ```
 
-### Troubleshooting
-```bash
-# Test database connection
-python test.py
+Returns `200 OK` when DB is connected, `503 Service Unavailable` otherwise:
 
-# Check Python version
-python --version
-
-# Check installed packages
-pip list | grep -E "Flask|SQLAlchemy|pyodbc"
-
-# View latest logs
-cat Log/log_2026-04-05.txt
+```json
+{ "status": "healthy", "database": "connected" }
 ```
 
 ---
 
-## 📊 KEY METRICS
+## Security
 
-### Performance Improvements
-- **Database Connection**: 200ms → 10ms (**95% faster**)
-- **API Response Time**: Variable → Consistent via pooling
-- **Table Rendering**: 50ms → 25ms (**50% faster**)
-- **Concurrent Requests**: 1000s supported with pooling
-
-### Code Quality
-- **Test Coverage**: 2 comprehensive tests
-- **Docstring Coverage**: 100% of functions
-- **Error Handling**: Global error handlers + logging
-- **Code Duplication**: Eliminated
-
-### Security
-- **Hardcoded Secrets**: 0 (all in .env)
-- **SQL Injection Risk**: Eliminated (parameterized queries)
-- **Debug Mode**: Configurable per environment
-- **Credentials**: Properly protected
+| Concern         | Mitigation                                                          |
+|-----------------|---------------------------------------------------------------------|
+| SQL injection   | Column whitelist + SQLAlchemy parameterized queries                 |
+| Secrets         | All credentials in `.env`; `.env` is gitignored                     |
+| Error leakage   | Custom 404/500 handlers return JSON — no stack traces in production |
+| Session signing | `SECRET_KEY` from `.env` (required)                                 |
 
 ---
 
-## 🎓 LEARNING PATH
+## Logging
 
-### For C Developers (New to Python)
-1. Read: QUICK_START.md (Installation)
-2. Read: BEST_PRACTICES.md (Code style section)
-3. Read: OPTIMIZATION_REPORT.md (Architecture section)
-4. Do: Run the application and explore
-
-### For Python Developers (New to This Project)
-1. Read: QUICK_START.md (Quick reference)
-2. Read: BEST_PRACTICES.md (Best practices)
-3. Read: OPTIMIZATION_REPORT.md (Design decisions)
-4. Read: app.py, database.py (Source code)
-
-### For DevOps/SRE
-1. Read: QUICK_START.md (Deployment section)
-2. Read: BEST_PRACTICES.md (Security section)
-3. Read: OPTIMIZATION_REPORT.md (Performance section)
-4. Setup: Monitoring and logging
-
-### For Code Reviewers
-1. Read: OPTIMIZATION_SUMMARY.txt (What changed)
-2. Read: BEST_PRACTICES.md (Code standards)
-3. Review: app.py, database.py, config.py
-4. Check: OPTIMIZATION_REPORT.md (Design rationale)
+Logs are written to `Log/log_YYYY-MM-DD.txt` with daily rotation (max 10 MB per file before creating a `.bak`).  
+Log level is controlled by `LOG_LEVEL` in `.env`: `DEBUG` | `INFO` | `WARN` | `ERROR`.
 
 ---
 
-## ✅ PRE-DEPLOYMENT CHECKLIST
+## License
 
-- [ ] Python 3.8+ installed
-- [ ] `pip install -r requirements.txt` executed
-- [ ] `.env` file exists with correct credentials
-- [ ] `python test.py` passes all tests
-- [ ] `python app.py` starts without errors
-- [ ] `http://localhost:5000` loads in browser
-- [ ] Transaction search functionality works
-- [ ] Logs are being written to `Log/` directory
-- [ ] `.gitignore` includes `.env`
-- [ ] No hardcoded credentials in code
-
----
-
-## 🔐 SECURITY CHECKLIST
-
-- [ ] No credentials hardcoded in code
-- [ ] `.env` file is in `.gitignore`
-- [ ] `SECRET_KEY` changed from default (production only)
-- [ ] `FLASK_ENV` set correctly (development/production)
-- [ ] `FLASK_DEBUG` is False in production
-- [ ] HTTPS enabled in production
-- [ ] Database user has minimal required permissions
-- [ ] Log files don't contain sensitive data
-- [ ] API endpoints validate input
-- [ ] Error messages don't expose internals
-
----
-
-## 📈 PERFORMANCE CHECKLIST
-
-- [ ] Connection pooling enabled (5 connections)
-- [ ] Database queries use OFFSET/FETCH with limits
-- [ ] Frontend uses batch DOM updates
-- [ ] DOM elements are cached
-- [ ] No N+1 queries
-- [ ] Logging doesn't impact performance
-- [ ] Log rotation prevents disk space issues
-- [ ] Server responses are compressed
-
----
-
-## 🆘 GETTING HELP
-
-### Issue Type | Where to Find Help
----|---
-Database connection fails | See QUICK_START.md → Troubleshooting
-How do I add a new endpoint? | See BEST_PRACTICES.md → Flask Best Practices
-The app is slow | See OPTIMIZATION_REPORT.md → Performance section
-How do I migrate from old code? | See MIGRATION_GUIDE.md
-Where are the logs? | See QUICK_START.md → Monitoring & Logs
-
-### Direct Error Messages
-```bash
-# ERROR: Failed to connect to database
-→ Run: python test.py
-→ Check: .env credentials
-→ Resource: QUICK_START.md - Troubleshooting
-
-# ERROR: ModuleNotFoundError: No module named 'database'
-→ Run: pip install -r requirements.txt
-→ Check: You're in correct directory
-
-# ERROR: Port already in use
-→ Run: flask run --port 8000
-→ Resource: QUICK_START.md - Troubleshooting
-```
-
----
-
-## 📞 SUPPORT RESOURCES
-
-| Resource | Purpose |
-|----------|---------|
-| QUICK_START.md | Installation, setup, troubleshooting |
-| BEST_PRACTICES.md | Code guidelines, examples |
-| OPTIMIZATION_REPORT.md | Technical design, architecture |
-| MIGRATION_GUIDE.md | Upgrading from old version |
-| app.py | Main application code |
-| config.py | Configuration examples |
-| database.py | Database layer documentation |
-| test.py | Test examples |
-
----
-
-## 🔄 VERSION HISTORY
-
-### Version 2.0 (Current - 2026-04-05)
-✨ **NEW FEATURES & IMPROVEMENTS:**
-- Database connection pooling
-- Configuration management system
-- Improved logging with rotation
-- Comprehensive documentation
-- JavaScript performance optimization
-- Security hardening
-- Error handler decorators
-
-**Files Changed:**
-- 6 new files created
-- 5 files updated
-- 1 file deprecated
-
-**Impact:**
-- 30-95% performance improvement
-- 100% security score on hardcoded secrets
-- Proper separation of concerns
-
-### Version 1.0 (Original)
-- Basic Flask application
-- Direct database queries
-- Hardcoded configuration
-- Simple logging
-
----
-
-## 🎯 NEXT FEATURES (TODO)
-
-- [ ] Implement caching layer (Redis)
-- [ ] Add authentication (JWT)
-- [ ] Add API versioning
-- [ ] Add comprehensive unit tests
-- [ ] Setup CI/CD pipeline
-- [ ] Add monitoring (Prometheus)
-- [ ] Add rate limiting
-- [ ] Implement pagination
-
----
-
-## 📧 FEEDBACK & CONTRIBUTIONS
-
-This project was optimized on 2026-04-05. For questions or improvements:
-
-1. Review the relevant documentation file
-2. Check logs for error details
-3. Run tests to verify functionality
-4. Consult BEST_PRACTICES.md for coding guidelines
-
----
-
-## 📜 LICENSE & CREDITS
-
-Project: TRACUUQAD - NRI Transaction History System  
-Optimized: 2026-04-05  
-Optimization Level: Complete code review & refactor  
-
-**Key Improvements:**
-- Security hardening
-- Performance optimization  
-- Code quality enhancement
-- Documentation completion
-
----
-
-## 🎉 YOU'RE ALL SET!
-
-Everything is ready to go. Pick your starting point from the QUICK COMMANDS section above or choose a documentation file based on your needs.
-
-**Happy coding!** 🚀
-
----
-
-### Quick Links
-- 🚀 [QUICK_START.md](QUICK_START.md) - Start here
-- 📖 [BEST_PRACTICES.md](BEST_PRACTICES.md) - Code standards
-- 📊 [OPTIMIZATION_REPORT.md](OPTIMIZATION_REPORT.md) - Details
-- 🔄 [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) - Upgrade from v1
-- ✅ [OPTIMIZATION_SUMMARY.txt](OPTIMIZATION_SUMMARY.txt) - What's new
-
----
-
-**Last Updated**: 2026-04-05 | **Status**: ✅ Complete & Ready | **Version**: 2.0
+Internal use — NRI production system.

@@ -24,21 +24,23 @@ class DatabaseManager:
                 poolclass=pool.QueuePool,
                 pool_size=5,
                 max_overflow=10,
-                pool_pre_ping=True,  # Test connections before using
+                pool_pre_ping=True,
                 echo=False,
             )
             self.logger.info("Database engine created successfully")
             return engine
         except Exception as e:
             self.logger.error(f"Failed to create database engine: {e}")
-            raise
+            return None
     
     @contextmanager
     def get_connection(self):
-        """
-        Context manager for database connections
-        Automatically handles connection lifecycle
-        """
+        """Context manager for database connections."""
+        if self.engine is None:
+            raise RuntimeError(
+                "Database engine is not initialised. "
+                "Check DB_SERVER / DB_USERNAME / DB_PASSWORD in your .env file."
+            )
         connection = None
         try:
             connection = self.engine.connect()
@@ -53,34 +55,32 @@ class DatabaseManager:
             if connection:
                 connection.close()
     
-    def fetch_all(self, query, limit=None):
+    def fetch_all(self, query, limit=None, params=None):
         """
-        Execute a SELECT query and fetch all results
-        
+        Execute a SELECT query and fetch all results.
+
         Args:
-            query (str): SQL query string (should not include TOP clause)
-            limit (int): Optional limit for records
-            
+            query  (str):       SQL query (without TOP clause).
+            limit  (int):       Max rows to return; falls back to config default.
+            params (dict|None): Named bind parameters for SQLAlchemy text().
+                                Values are bound safely — never interpolated.
+
         Returns:
-            list: List of dictionaries with query results
+            list[dict]: Query results as a list of row dicts.
         """
         try:
             with self.get_connection() as connection:
-                # Determine limit
                 actual_limit = limit or self.config.DB_QUERY_LIMIT
-                
-                # Add TOP clause if query doesn't already have it
-                # SQL Server compatible way using TOP
-                if 'TOP' not in query.upper():
-                    # Insert TOP clause after SELECT
-                    query = query.replace('SELECT', f'SELECT TOP {actual_limit}', 1)
-                
-                result = connection.execute(text(query))
+
+                # Inject TOP clause for SQL Server row-limit (safe — integer only)
+                if "TOP" not in query.upper():
+                    query = query.replace("SELECT", f"SELECT TOP {actual_limit}", 1)
+
+                result = connection.execute(text(query), params or {})
                 rows = result.fetchall()
-                
-                # Convert to list of dictionaries
+
                 data = [dict(row._mapping) for row in rows]
-                self.logger.info(f"Query executed successfully. Rows: {len(data)}")
+                self.logger.info(f"Query OK — rows returned: {len(data)}")
                 return data
         except Exception as e:
             self.logger.error(f"Error executing query: {e}")
@@ -129,7 +129,10 @@ class DatabaseManager:
             return 0
     
     def check_connection(self):
-        """Test database connection"""
+        """Test database connection. Returns False if engine is not initialised."""
+        if self.engine is None:
+            self.logger.error("Database connection test failed: engine not initialised")
+            return False
         try:
             with self.get_connection() as connection:
                 connection.execute(text("SELECT 1"))

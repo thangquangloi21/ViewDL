@@ -1,5 +1,11 @@
+# Core
 Flask>=2.3.0
+Werkzeug>=2.3.0
+python-dotenv>=1.0.0
+
+# Database
 SQLAlchemy>=2.0.0
 pyodbc>=4.0.35
-python-dotenv>=1.0.0
-Werkzeug>=2.3.0
+
+# Production WSGI server (Windows)
+waitress>=2.1.2
