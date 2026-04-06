@@ -609,7 +609,7 @@ select.tx-op {
     margin-bottom: 1rem;
 }
 
-.tx-condition {
+.tx-condition, .search-condition {
     display: flex;
     gap: .55rem;
     margin-bottom: .55rem;
@@ -617,9 +617,9 @@ select.tx-op {
     flex-wrap: wrap;
 }
 
-.tx-col { min-width: 175px; }
-.tx-op  { min-width: 125px; }
-.tx-val { flex: 1; min-width: 160px; }
+.tx-col, .search-col { min-width: 175px; }
+.tx-op, .search-op   { min-width: 125px; }
+.tx-val, .search-val { flex: 1; min-width: 160px; }
 
 .search-actions {
     display: flex;

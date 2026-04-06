@@ -12,6 +12,24 @@ const otherViewTitle  = document.getElementById('otherViewTitle');
 
 let sampleData = []; // populated silently on load, used by other views
 
+// Mapping from sidebar data-view (camelCase) to viewId (used in HTML IDs)
+const viewIdMap = {
+    'dashboard':          'dashboard',
+    'transaction':        'transaction',
+    'workOrder':          'workorder',
+    'workOrderBill':      'workorderbill',
+    'unconfirmedPO':      'unconfirmedposhipper',
+    'salesOrder':         'salesorder',
+    'qualityResult':      'qualityorderresult',
+    'qualityModification': 'qualitymodification',
+    'purchaseReceipt':    'purchasereceipt',
+    'purchaseOrder':      'purchaseorder',
+};
+
+// List of views with their own search partial
+const searchViewIds = ['workorder', 'workorderbill', 'unconfirmedposhipper', 'salesorder', 
+                       'qualityorderresult', 'qualitymodification', 'purchasereceipt', 'purchaseorder'];
+
 // ---------------------------------------------------------------------------
 // View metadata for "other" views
 // ---------------------------------------------------------------------------
@@ -48,24 +66,47 @@ sidebarToggle.addEventListener('click', () => {
 // ---------------------------------------------------------------------------
 // View switching
 // ---------------------------------------------------------------------------
-function setActiveView(viewId) {
-    dashboardView.classList.toggle('hidden', viewId !== 'dashboard');
-    transactionView.classList.toggle('hidden', viewId !== 'transaction');
-    otherView.classList.toggle('hidden', viewId === 'dashboard' || viewId === 'transaction');
+function setActiveView(sidebarViewId) {
+    // Convert sidebar viewId to internal viewId using map
+    const viewId = viewIdMap[sidebarViewId] || sidebarViewId;
 
-    menuItems.forEach(item => item.classList.toggle('active', item.dataset.view === viewId));
+    // Hide all views with class 'view'
+    document.querySelectorAll('.view').forEach(el => {
+        el.classList.add('hidden');
+    });
+
+    // Hide dashboard and other
+    dashboardView?.classList.add('hidden');
+    otherView?.classList.add('hidden');
+
+    // Show the selected view
+    if (viewId === 'dashboard') {
+        dashboardView?.classList.remove('hidden');
+    } else if (viewId === 'transaction') {
+        transactionView?.classList.remove('hidden');
+    } else {
+        // For all other views (workorder, workorderbill, etc)
+        const viewEl = document.getElementById(`${viewId}View`);
+        if (viewEl) {
+            viewEl.classList.remove('hidden');
+        }
+    }
+
+    // Update active menu item
+    menuItems.forEach(item => item.classList.toggle('active', item.dataset.view === sidebarViewId));
 }
 
 menuItems.forEach(item => {
     item.addEventListener('click', e => {
         e.preventDefault();
-        const view = item.dataset.view || 'dashboard';
-        setActiveView(view);
+        const sidebarView = item.dataset.view || 'dashboard';
+        const viewId = viewIdMap[sidebarView] || sidebarView;
+        setActiveView(sidebarView);
 
-        if (view !== 'dashboard' && view !== 'transaction') {
-            renderOtherView(view);
+        // Only render "other" view for views not in searchViewIds
+        if (!searchViewIds.includes(viewId) && viewId !== 'dashboard' && viewId !== 'transaction') {
+            renderOtherView(sidebarView);
         }
-        // Transaction view is fully managed by transaction.js
     });
 });
 
@@ -74,10 +115,12 @@ menuItems.forEach(item => {
 // ---------------------------------------------------------------------------
 document.querySelectorAll('.fn-card[data-view]').forEach(card => {
     card.addEventListener('click', () => {
-        const view = card.dataset.view;
-        setActiveView(view);
-        if (view !== 'transaction') {
-            renderOtherView(view);
+        const sidebarView = card.dataset.view;
+        const viewId = viewIdMap[sidebarView] || sidebarView;
+        setActiveView(sidebarView);
+        // Views with their own partial don't need renderOtherView()
+        if (!searchViewIds.includes(viewId) && viewId !== 'dashboard' && viewId !== 'transaction') {
+            renderOtherView(sidebarView);
         }
     });
 });

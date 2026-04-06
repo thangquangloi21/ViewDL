@@ -1,0 +1,52 @@
+<!-- Sales Order view partial -->
+<!-- JS logic is in static/js/search.js -->
+<div id="salesorderView" class="view hidden">
+    <section class="panel search-panel">
+        <div class="panel-header">
+            <h2>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.4rem"><path d="M9 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9"/><polyline points="19 2 19 8 13 8"/></svg>
+                Sales Order
+            </h2>
+        </div>
+
+        <div class="search-criteria">
+            <div id="salesorderSearchConditions"></div>
+            <div class="search-actions">
+                <button id="salesorderAddConditionBtn" class="btn secondary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Thêm điều kiện
+                </button>
+                <button id="salesorderSearchBtn" class="btn primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Tìm kiếm
+                </button>
+                <button id="salesorderClearAllBtn" class="btn secondary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    Xoá tất cả
+                </button>
+            </div>
+        </div>
+
+        <div class="search-summary">
+            <p id="salesorderCount">Nhập điều kiện tìm kiếm và click "Tìm kiếm"</p>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr id="salesorderTableHeaders">
+                        <th>Index</th>
+                    </tr>
+                </thead>
+                <tbody id="salesorderTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const columns = ['so_number', 'so_line', 'so_status', 'so_date', 'so_part', 'so_qty', 'so_ship_date', 'so_price', 'so_custpo', 'so_rmks'];
+        initSearch('salesorder', columns);
+    });
+</script>

@@ -4,7 +4,7 @@ API routes — JSON endpoints consumed by the frontend.
 Security note
 -------------
 * Column names in the dynamic search query are validated against
-  TRANSACTION_ALLOWED_COLUMNS (whitelist) to prevent SQL injection.
+  table-specific whitelists to prevent SQL injection.
 * Values are passed as bound parameters via SQLAlchemy text() — never
   interpolated into the query string.
 """
@@ -14,6 +14,7 @@ from constants import (
     TRANSACTION_TABLE,
     TRANSACTION_ALLOWED_COLUMNS,
     ALLOWED_OPERATORS,
+    SEARCH_TABLES,
 )
 
 api_bp = Blueprint("api", __name__)
@@ -127,6 +128,104 @@ def api_transaction_search():
         })
     except Exception as exc:
         logger.error(f"Search error: {exc}")
+        return jsonify({
+            "success": False,
+            "error":   "Search failed — see server logs for details.",
+            "count":   0,
+            "data":    [],
+        }), 500
+
+
+# ---------------------------------------------------------------------------
+# Generic multi-table search endpoint
+# ---------------------------------------------------------------------------
+
+@api_bp.route("/search/<table_id>", methods=["POST"])
+def api_generic_search(table_id):
+    """
+    Generic server-side search on any configured table.
+    
+    URL: POST /api/search/<table_id>
+    table_id: 'transaction', 'workorder', 'salesorder', etc.
+    
+    Request body (JSON):
+    {
+        "conditions": [
+            {"column": "column_name", "operator": "contains", "value": "search_value"}
+        ],
+        "limit": 100
+    }
+    """
+    cfg    = current_app.config["APP_CONFIG"]
+    db     = current_app.db
+    logger = current_app.app_logger
+
+    # Validate table_id
+    if table_id not in SEARCH_TABLES:
+        logger.warning(f"Invalid table_id: {table_id}")
+        return jsonify({
+            "success": False,
+            "error":   f"Unknown table: {table_id}",
+            "count":   0,
+            "data":    [],
+        }), 400
+
+    table_config = SEARCH_TABLES[table_id]
+    table_name = table_config['table_name']
+    allowed_columns = table_config['allowed_columns']
+
+    body       = request.get_json(silent=True) or {}
+    conditions = body.get("conditions", [])
+    limit      = body.get("limit", cfg.DB_QUERY_LIMIT)
+
+    logger.info(f"POST /api/search/{table_id} — {len(conditions)} condition(s)")
+
+    where_clauses = []
+    params = {}
+
+    for idx, cond in enumerate(conditions):
+        column   = cond.get("column",   "").strip()
+        operator = cond.get("operator", "contains").strip().lower()
+        value    = cond.get("value",    "").strip()
+
+        if not column or not value:
+            continue
+
+        # --- Security: reject unknown columns ---
+        if column not in allowed_columns:
+            logger.warning(f"Search rejected: invalid column {column!r} for table {table_id}")
+            continue
+
+        # --- Security: normalise operator ---
+        if operator not in ALLOWED_OPERATORS:
+            operator = "contains"
+
+        # --- Build parameterised clause ---
+        param_key = f"val_{idx}"
+        if operator == "equals":
+            where_clauses.append(f"[{column}] = :{param_key}")
+            params[param_key] = value
+        elif operator == "startswith":
+            where_clauses.append(f"[{column}] LIKE :{param_key}")
+            params[param_key] = f"{value}%"
+        else:  # contains
+            where_clauses.append(f"[{column}] LIKE :{param_key}")
+            params[param_key] = f"%{value}%"
+
+    base_sql = f"SELECT * FROM {table_name}"
+    sql = f"{base_sql} WHERE {' AND '.join(where_clauses)}" if where_clauses else base_sql
+
+    try:
+        data = db.fetch_all(sql, limit=limit, params=params)
+        logger.info(f"Search on {table_id} returned {len(data)} rows")
+        return jsonify({
+            "success": True,
+            "count":   len(data),
+            "data":    data,
+            "query":   sql if cfg.DEBUG else None,
+        })
+    except Exception as exc:
+        logger.error(f"Search error on {table_id}: {exc}")
         return jsonify({
             "success": False,
             "error":   "Search failed — see server logs for details.",

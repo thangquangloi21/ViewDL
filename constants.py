@@ -5,14 +5,14 @@ from enum import Enum
 
 
 # ---------------------------------------------------------------------------
-# Database table reference
+# Database table references & search configuration
+# Each view has its own table definition with allowed search columns
 # ---------------------------------------------------------------------------
-TRANSACTION_TABLE = "[Data_qad].[dbo].[Transaction History Browse (NRI)]"
 
-# ---------------------------------------------------------------------------
-# Security: column whitelist for dynamic search queries
-# Only columns in this set are allowed to prevent SQL injection via column names
-# ---------------------------------------------------------------------------
+ALLOWED_OPERATORS = frozenset(['contains', 'equals', 'startswith'])
+
+# Primary table (backward compatibility)
+TRANSACTION_TABLE = "[Data_qad].[dbo].[Transaction History Browse (NRI)]"
 TRANSACTION_ALLOWED_COLUMNS = frozenset([
     'pt_part_type', 'pt_prod_line', 'pt_um',
     'tr_curr',      'tr_date',      'tr_effdate',
@@ -25,7 +25,88 @@ TRANSACTION_ALLOWED_COLUMNS = frozenset([
     'tr_userid',
 ])
 
-ALLOWED_OPERATORS = frozenset(['contains', 'equals', 'startswith'])
+# Multi-table search configuration (for generic search handler)
+# table_id → { table_name, display_label, allowed_columns, view_id }
+SEARCH_TABLES = {
+    'transaction': {
+        'table_name': '[Data_qad].[dbo].[Transaction History Browse (NRI)]',
+        'label': 'Transaction History Browse (NRI)',
+        'view_id': 'transactionView',
+        'allowed_columns': TRANSACTION_ALLOWED_COLUMNS,
+    },
+    'workorder': {
+        'table_name': '[Data_qad].[dbo].[Work Order]',
+        'label': 'Work Order',
+        'view_id': 'workorderView',
+        'allowed_columns': frozenset([
+            'wo_number', 'wo_status', 'wo_date', 'wo_part', 'wo_qty',
+            'wo_custpo', 'wo_duedt', 'wo_rmks', 'wo_type', 'wo_site',
+        ]),
+    },
+    'workorderbill': {
+        'table_name': '[Data_qad].[dbo].[Work Order Bill]',
+        'label': 'Work Order Bill',
+        'view_id': 'workorderbillView',
+        'allowed_columns': frozenset([
+            'wo_number', 'wo_bill_seq', 'wo_date', 'wo_amount', 'wo_status',
+            'wo_rmks', 'wo_site', 'wo_userid', 'wo_quantity',
+        ]),
+    },
+    'unconfirmedposhipper': {
+        'table_name': '[Data_qad].[dbo].[Unconfirmed PO Shipper]',
+        'label': 'Unconfirmed PO Shipper',
+        'view_id': 'unconfirmedposhipperView',
+        'allowed_columns': frozenset([
+            'po_number', 'po_line', 'po_status', 'po_date', 'po_part',
+            'po_qty', 'po_ship_date', 'po_amount', 'po_rmks', 'po_site',
+        ]),
+    },
+    'salesorder': {
+        'table_name': '[Data_qad].[dbo].[Sales Order]',
+        'label': 'Sales Order',
+        'view_id': 'salesorderView',
+        'allowed_columns': frozenset([
+            'so_number', 'so_line', 'so_status', 'so_date', 'so_part',
+            'so_qty', 'so_ship_date', 'so_price', 'so_custpo', 'so_rmks',
+        ]),
+    },
+    'qualityorderresult': {
+        'table_name': '[Data_qad].[dbo].[Quality Order Result]',
+        'label': 'Quality Order Result',
+        'view_id': 'qualityorderresultView',
+        'allowed_columns': frozenset([
+            'qo_number', 'qo_part', 'qo_status', 'qo_date', 'qo_result',
+            'qo_qty_tested', 'qo_qty_passed', 'qo_rmks', 'qo_site',
+        ]),
+    },
+    'qualitymodification': {
+        'table_name': '[Data_qad].[dbo].[Quality Modification]',
+        'label': 'Quality Modification',
+        'view_id': 'qualitymodificationView',
+        'allowed_columns': frozenset([
+            'qm_number', 'qm_part', 'qm_status', 'qm_date', 'qm_reason',
+            'qm_action', 'qm_qty', 'qm_rmks', 'qm_site', 'qm_userid',
+        ]),
+    },
+    'purchasereceipt': {
+        'table_name': '[Data_qad].[dbo].[Purchase Receipt]',
+        'label': 'Purchase Receipt',
+        'view_id': 'purchasereceiptView',
+        'allowed_columns': frozenset([
+            'pr_number', 'pr_line', 'pr_date', 'pr_part', 'pr_qty_recv',
+            'pr_qty_accept', 'pr_po_number', 'pr_status', 'pr_rmks', 'pr_site',
+        ]),
+    },
+    'purchaseorder': {
+        'table_name': '[Data_qad].[dbo].[Purchase Order]',
+        'label': 'Purchase Order',
+        'view_id': 'purchaseorderView',
+        'allowed_columns': frozenset([
+            'po_number', 'po_line', 'po_status', 'po_date', 'po_part',
+            'po_qty', 'po_price', 'po_vendor', 'po_duedt', 'po_rmks',
+        ]),
+    },
+}
 
 
 # ---------------------------------------------------------------------------

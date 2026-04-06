@@ -1,0 +1,55 @@
+<!-- Work Order view partial -->
+<!-- JS logic is in static/js/search.js -->
+<div id="workorderView" class="view hidden">
+    <section class="panel search-panel">
+        <div class="panel-header">
+            <h2>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.4rem"><rectangle x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10"/><path d="M7 11h10"/><path d="M7 15h10"/></svg>
+                Work Order
+            </h2>
+        </div>
+
+        <!-- Search condition builder -->
+        <div class="search-criteria">
+            <div id="workorderSearchConditions"></div>
+
+            <div class="search-actions">
+                <button id="workorderAddConditionBtn" class="btn secondary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Thêm điều kiện
+                </button>
+                <button id="workorderSearchBtn" class="btn primary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Tìm kiếm
+                </button>
+                <button id="workorderClearAllBtn" class="btn secondary">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    Xoá tất cả
+                </button>
+            </div>
+        </div>
+
+        <div class="search-summary">
+            <p id="workorderCount">Nhập điều kiện tìm kiếm và click "Tìm kiếm"</p>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr id="workorderTableHeaders">
+                        <th>Index</th>
+                    </tr>
+                </thead>
+                <tbody id="workorderTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Initialize search handler for this view when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const columns = ['wo_number', 'wo_status', 'wo_date', 'wo_part', 'wo_qty', 'wo_custpo', 'wo_duedt', 'wo_rmks', 'wo_type', 'wo_site'];
+        initSearch('workorder', columns);
+    });
+</script>
