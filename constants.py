@@ -13,17 +13,6 @@ ALLOWED_OPERATORS = frozenset(['contains', 'equals', 'startswith'])
 
 # Primary table (backward compatibility)
 TRANSACTION_TABLE = "[Data_qad].[dbo].[Transaction History Browse (NRI)]"
-TRANSACTION_ALLOWED_COLUMNS = frozenset([
-    'pt_part_type', 'pt_prod_line', 'pt_um',
-    'tr_curr',      'tr_date',      'tr_effdate',
-    'tr_ex_rate',   'tr_ex_rate2',  'tr_line',
-    'tr_loc',       'tr_lot',       'tr_nbr',
-    'tr_part',      'tr_price',     'tr_program',
-    'tr_qty_loc',   'tr_qty_req',   'tr_rmks',
-    'tr_serial',    'tr_site',      'tr_status',
-    'tr_time',      'tr_trnbr',     'tr_type',
-    'tr_userid',
-])
 
 # Multi-table search configuration (for generic search handler)
 # table_id → { table_name, display_label, allowed_columns, view_id }
@@ -32,79 +21,55 @@ SEARCH_TABLES = {
         'table_name': '[Data_qad].[dbo].[Transaction History Browse (NRI)]',
         'label': 'Transaction History Browse (NRI)',
         'view_id': 'transactionView',
-        'allowed_columns': TRANSACTION_ALLOWED_COLUMNS,
+        'allowed_columns': None,
     },
     'workorder': {
-        'table_name': '[Data_qad].[dbo].[Work Order]',
-        'label': 'Work Order',
+        'table_name': '[Data_qad].[dbo].[Work Order Browse (NRI)]',
+        'label': 'Work Order Browse (NRI)',
         'view_id': 'workorderView',
-        'allowed_columns': frozenset([
-            'wo_number', 'wo_status', 'wo_date', 'wo_part', 'wo_qty',
-            'wo_custpo', 'wo_duedt', 'wo_rmks', 'wo_type', 'wo_site',
-        ]),
+        'allowed_columns': None,
     },
     'workorderbill': {
-        'table_name': '[Data_qad].[dbo].[Work Order Bill]',
-        'label': 'Work Order Bill',
+        'table_name': '[Data_qad].[dbo].[Work Order Bill Browse]',
+        'label': 'Work Order Bill Browse',
         'view_id': 'workorderbillView',
-        'allowed_columns': frozenset([
-            'wo_number', 'wo_bill_seq', 'wo_date', 'wo_amount', 'wo_status',
-            'wo_rmks', 'wo_site', 'wo_userid', 'wo_quantity',
-        ]),
+        'allowed_columns': None,
     },
     'unconfirmedposhipper': {
-        'table_name': '[Data_qad].[dbo].[Unconfirmed PO Shipper]',
-        'label': 'Unconfirmed PO Shipper',
+        'table_name': '[Data_qad].[dbo].[Unconfirmed PO Shipper Browse (NRI)]',
+        'label': 'Unconfirmed PO Shipper Browse (NRI)',
         'view_id': 'unconfirmedposhipperView',
-        'allowed_columns': frozenset([
-            'po_number', 'po_line', 'po_status', 'po_date', 'po_part',
-            'po_qty', 'po_ship_date', 'po_amount', 'po_rmks', 'po_site',
-        ]),
+        'allowed_columns': None,
     },
     'salesorder': {
-        'table_name': '[Data_qad].[dbo].[Sales Order]',
-        'label': 'Sales Order',
+        'table_name': '[Data_qad].[dbo].[Sales Order Browse (NRI)]',
+        'label': 'Sales Order Browse (NRI)',
         'view_id': 'salesorderView',
-        'allowed_columns': frozenset([
-            'so_number', 'so_line', 'so_status', 'so_date', 'so_part',
-            'so_qty', 'so_ship_date', 'so_price', 'so_custpo', 'so_rmks',
-        ]),
+        'allowed_columns': None,
     },
     'qualityorderresult': {
-        'table_name': '[Data_qad].[dbo].[Quality Order Result]',
-        'label': 'Quality Order Result',
+        'table_name': '[Data_qad].[dbo].[Quality Order Result Browse(NRI)]',
+        'label': 'Quality Order Result Browse(NRI)',
         'view_id': 'qualityorderresultView',
-        'allowed_columns': frozenset([
-            'qo_number', 'qo_part', 'qo_status', 'qo_date', 'qo_result',
-            'qo_qty_tested', 'qo_qty_passed', 'qo_rmks', 'qo_site',
-        ]),
+        'allowed_columns': None,
     },
     'qualitymodification': {
-        'table_name': '[Data_qad].[dbo].[Quality Modification]',
-        'label': 'Quality Modification',
+        'table_name': '[Data_qad].[dbo].[Quality Order Modification Browse(NRI)]',
+        'label': 'Quality Order Modification Browse(NRI)',
         'view_id': 'qualitymodificationView',
-        'allowed_columns': frozenset([
-            'qm_number', 'qm_part', 'qm_status', 'qm_date', 'qm_reason',
-            'qm_action', 'qm_qty', 'qm_rmks', 'qm_site', 'qm_userid',
-        ]),
+        'allowed_columns': None,
     },
     'purchasereceipt': {
-        'table_name': '[Data_qad].[dbo].[Purchase Receipt]',
-        'label': 'Purchase Receipt',
+        'table_name': '[Data_qad].[dbo].[Purchase Receipt Browse (NRI)]',
+        'label': 'Purchase Receipt Browse (NRI)',
         'view_id': 'purchasereceiptView',
-        'allowed_columns': frozenset([
-            'pr_number', 'pr_line', 'pr_date', 'pr_part', 'pr_qty_recv',
-            'pr_qty_accept', 'pr_po_number', 'pr_status', 'pr_rmks', 'pr_site',
-        ]),
+        'allowed_columns': None,
     },
     'purchaseorder': {
-        'table_name': '[Data_qad].[dbo].[Purchase Order]',
-        'label': 'Purchase Order',
+        'table_name': '[Data_qad].[dbo].[Purchase Order Browse (NRI)]',
+        'label': 'Purchase Order Browse (NRI)',
         'view_id': 'purchaseorderView',
-        'allowed_columns': frozenset([
-            'po_number', 'po_line', 'po_status', 'po_date', 'po_part',
-            'po_qty', 'po_price', 'po_vendor', 'po_duedt', 'po_rmks',
-        ]),
+        'allowed_columns': None,
     },
 }
 

@@ -5,7 +5,7 @@
         <div class="panel-header">
             <h2>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.4rem"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M9 10l2 2 4-4"/></svg>
-                Purchase Receipt
+                Purchase Receipt Browse (NRI)
             </h2>
         </div>
 
@@ -46,7 +46,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const columns = ['pr_number', 'pr_line', 'pr_date', 'pr_part', 'pr_qty_recv', 'pr_qty_accept', 'pr_po_number', 'pr_status', 'pr_rmks', 'pr_site'];
-        initSearch('purchasereceipt', columns);
+        initSearch('purchasereceipt');
     });
 </script>

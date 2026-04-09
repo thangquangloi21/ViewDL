@@ -5,7 +5,7 @@
         <div class="panel-header">
             <h2>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:.4rem"><path d="M6 4h12"/><path d="M6 8h12"/><path d="M6 12h12"/><path d="M6 16h12"/><path d="M4 6v12"/><path d="M20 6v12"/></svg>
-                Work Order Bill
+                Work Order Bill Browse
             </h2>
         </div>
 
@@ -46,7 +46,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const columns = ['wo_number', 'wo_bill_seq', 'wo_date', 'wo_amount', 'wo_status', 'wo_rmks', 'wo_site', 'wo_userid', 'wo_quantity'];
-        initSearch('workorderbill', columns);
+        initSearch('workorderbill');
     });
 </script>

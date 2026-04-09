@@ -92,6 +92,11 @@ function setActiveView(sidebarViewId) {
         }
     }
 
+    // Lazy load default data when user opens a searchable non-transaction view
+    if (searchViewIds.includes(viewId) && typeof window.ensureSearchViewLoaded === 'function') {
+        window.ensureSearchViewLoaded(viewId);
+    }
+
     // Update active menu item
     menuItems.forEach(item => item.classList.toggle('active', item.dataset.view === sidebarViewId));
 }
