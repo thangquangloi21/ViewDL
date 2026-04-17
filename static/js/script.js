@@ -9,6 +9,7 @@ const transactionView = document.getElementById('transactionView');
 const otherView       = document.getElementById('otherView');
 const otherSearchBtn  = document.getElementById('otherSearchBtn');
 const otherViewTitle  = document.getElementById('otherViewTitle');
+const sidebarYear     = document.getElementById('sidebarYear');
 
 let sampleData = []; // populated silently on load, used by other views
 
@@ -199,6 +200,7 @@ async function loadApiData() {
 // Bootstrap on DOMContentLoaded
 // ---------------------------------------------------------------------------
 window.addEventListener('DOMContentLoaded', () => {
+    if (sidebarYear) sidebarYear.textContent = String(new Date().getFullYear());
     setSidebarState(localStorage.getItem('sidebarCollapsed') === 'true');
     setActiveView('dashboard');
     loadApiData();
