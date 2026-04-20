@@ -488,28 +488,10 @@ body {
     border-color: #fca5a5;
 }
 
-.btn-remove {
-    display: inline-flex;
-    align-items: center;
-    padding: .32rem .6rem;
-    background: #fff5f5;
-    color: #dc2626;
-    border: 1.5px solid #fecaca;
-    border-radius: var(--r-s);
-    cursor: pointer;
-    font-size: .8rem;
-    font-weight: 600;
-    flex-shrink: 0;
-    transition: all var(--t);
-    line-height: 1;
-}
-
-.btn-remove:hover { background: #fee2e2; border-color: #fca5a5; }
-
 /* ── Tables ─────────────────────────────────────────────────────────────── */
 .table-wrapper {
     overflow: auto;
-    max-height: 70vh;
+    max-height: 80vh;
     border-radius: var(--r-m);
     border: 1px solid var(--border);
     scrollbar-width: thin;
@@ -520,7 +502,7 @@ table {
     min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: .82rem;
+    font-size: .75rem;
 }
 
 thead { position: static; }
@@ -531,11 +513,11 @@ th {
     z-index: 2;
     background: #f8fafc;
     color: var(--txt-2);
-    font-size: .68rem;
+    font-size: .64rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .07em;
-    padding: .55rem .8rem;
+    padding: .4rem .7rem;
     text-align: left;
     border-bottom: 1px solid #e5e7eb;
     border-right: 1px solid #eef2f7;
@@ -545,7 +527,7 @@ th {
 th:last-child { border-right: none; }
 
 td {
-    padding: .5rem .8rem;
+    padding: .3rem .7rem;
     color: var(--txt);
     border-bottom: 1px solid #eef2f7;
     border-right: 1px solid #f3f5f9;
@@ -581,6 +563,7 @@ tbody tr:last-child td { border-bottom: none; }
 .tx-col,
 .tx-op,
 .tx-val,
+.tx-val2,
 select.tx-col,
 select.tx-op {
     border: 1.5px solid var(--border);
@@ -606,7 +589,8 @@ select.tx-op {
 .field-group input:focus,
 .tx-col:focus,
 .tx-op:focus,
-.tx-val:focus {
+.tx-val:focus,
+.tx-val2:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-ring);
     background: #fff;
@@ -617,21 +601,80 @@ select.tx-op {
     background: var(--bg);
     border: 1.5px solid var(--border);
     border-radius: var(--r-m);
-    padding: 1rem 1rem .75rem;
+    padding: .75rem .75rem .5rem;
     margin-bottom: 1rem;
+}
+
+.search-criteria-top {
+    display: flex;
+    gap: .6rem;
+    align-items: flex-start;
+}
+
+.search-criteria-top .search-conditions-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-criteria-top .search-actions {
+    display: flex;
+    gap: .5rem;
+    flex-shrink: 0;
+    padding-top: 0;
+    border-top: none;
+    margin-top: 0;
+    align-items: flex-start;
 }
 
 .tx-condition, .search-condition {
     display: flex;
-    gap: .55rem;
-    margin-bottom: .55rem;
+    gap: .4rem;
+    margin-bottom: .4rem;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
-.tx-col, .search-col { min-width: 175px; }
-.tx-op, .search-op   { min-width: 125px; }
-.tx-val, .search-val { flex: 1; min-width: 160px; }
+.tx-col, .search-col { width: 200px; flex-shrink: 0; }
+.tx-op, .search-op   { width: 120px; flex-shrink: 0; }
+.tx-val, .search-val { flex: 1; min-width: 80px; }
+.tx-val2             { flex: 1; min-width: 80px; }
+.tx-range-sep        { color: var(--txt-2); font-weight: 600; user-select: none; flex-shrink: 0; }
+
+/* Icon buttons inside condition rows (+, ✕, clear) */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: var(--r-s);
+    background: transparent;
+    cursor: pointer;
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: background var(--t), color var(--t);
+}
+
+.btn-clear-val { color: #94a3b8; font-size: .78rem; }
+.btn-clear-val:hover { color: #475569; background: #f1f5f9; }
+
+.btn-add-row { color: #16a34a; font-size: 1.1rem; }
+.btn-add-row:hover { background: #f0fdf4; }
+
+.btn-remove-row { color: #dc2626; font-size: .85rem; }
+.btn-remove-row:hover { background: #fef2f2; }
+
+.btn-icon:disabled { opacity: .35; cursor: default; }
+
+input.tx-val:disabled,
+input.tx-val2:disabled {
+    background: #f8fafc;
+    color: #94a3b8;
+}
 
 .search-actions {
     display: flex;

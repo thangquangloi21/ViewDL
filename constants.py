@@ -9,7 +9,11 @@ from enum import Enum
 # Each view has its own table definition with allowed search columns
 # ---------------------------------------------------------------------------
 
-ALLOWED_OPERATORS = frozenset(['contains', 'equals', 'startswith'])
+ALLOWED_OPERATORS = frozenset([
+    'equals', 'not_equals', 'contains', 'range',
+    'startswith', 'greater_than', 'less_than',
+    'is_null', 'is_not_null',
+])
 
 # Primary table (backward compatibility)
 TRANSACTION_TABLE = "[Data_qad].[dbo].[Transaction History Browse (NRI)]"

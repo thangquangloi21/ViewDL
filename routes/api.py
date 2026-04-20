@@ -65,17 +65,27 @@ def _normalise_pagination(raw_page, raw_page_size, default_page_size=DEFAULT_PAG
     return page, page_size, offset
 
 
-def _build_search_filters(conditions, allowed_columns, logger):
-    """Build WHERE clauses + params safely from validated conditions."""
+def _build_search_filters(conditions, allowed_columns, logger, column_types=None):
+    """Build WHERE clauses + params safely from validated conditions.
+
+    Operators:
+        equals, not_equals, contains, range, startswith,
+        greater_than, less_than, is_null, is_not_null
+
+    Date/datetime columns are compared using CAST/CONVERT with style 103
+    (dd/mm/yyyy) so that user-supplied values match the display format.
+    """
     where_clauses = []
     params = {}
+    column_types = column_types or {}
 
     for idx, cond in enumerate(conditions):
         column = cond.get("column", "").strip()
         operator = cond.get("operator", "contains").strip().lower()
         value = cond.get("value", "").strip()
+        value2 = cond.get("value2", "").strip()
 
-        if not column or not value:
+        if not column:
             continue
 
         if column not in allowed_columns:
@@ -85,16 +95,93 @@ def _build_search_filters(conditions, allowed_columns, logger):
         if operator not in ALLOWED_OPERATORS:
             operator = "contains"
 
+        # is_null / is_not_null don't need a value
+        if operator == "is_null":
+            where_clauses.append(f"[{column}] IS NULL")
+            continue
+        if operator == "is_not_null":
+            where_clauses.append(f"[{column}] IS NOT NULL")
+            continue
+
+        # All other operators require a value
+        if not value:
+            continue
+
+        col_type = column_types.get(column, "")
+        is_date = col_type in _DATE_TYPES
+
         param_key = f"val_{idx}"
-        if operator == "equals":
-            where_clauses.append(f"[{column}] = :{param_key}")
-            params[param_key] = value
-        elif operator == "startswith":
-            where_clauses.append(f"[{column}] LIKE :{param_key}")
-            params[param_key] = f"{value}%"
+        param_key2 = f"val2_{idx}"
+
+        if is_date:
+            # Date comparisons — use CAST to DATE for proper comparison
+            date_col = f"CAST([{column}] AS DATE)"
+            date_val = f"CONVERT(DATE, :{param_key}, 103)"
+
+            if operator == "equals":
+                where_clauses.append(f"{date_col} = {date_val}")
+                params[param_key] = value
+            elif operator == "not_equals":
+                where_clauses.append(f"{date_col} <> {date_val}")
+                params[param_key] = value
+            elif operator == "greater_than":
+                where_clauses.append(f"{date_col} >= {date_val}")
+                params[param_key] = value
+            elif operator == "less_than":
+                where_clauses.append(f"{date_col} <= {date_val}")
+                params[param_key] = value
+            elif operator == "range":
+                if value2:
+                    date_val2 = f"CONVERT(DATE, :{param_key2}, 103)"
+                    where_clauses.append(
+                        f"{date_col} BETWEEN {date_val} AND {date_val2}"
+                    )
+                    params[param_key] = value
+                    params[param_key2] = value2
+                else:
+                    where_clauses.append(f"{date_col} = {date_val}")
+                    params[param_key] = value
+            else:
+                # contains / startswith → text search on formatted string
+                col_expr = f"CONVERT(VARCHAR, [{column}], 103)"
+                if operator == "startswith":
+                    where_clauses.append(f"{col_expr} LIKE :{param_key}")
+                    params[param_key] = f"{value}%"
+                else:
+                    where_clauses.append(f"{col_expr} LIKE :{param_key}")
+                    params[param_key] = f"%{value}%"
         else:
-            where_clauses.append(f"[{column}] LIKE :{param_key}")
-            params[param_key] = f"%{value}%"
+            # Text / numeric columns
+            col_expr = f"[{column}]"
+
+            if operator == "equals":
+                where_clauses.append(f"{col_expr} = :{param_key}")
+                params[param_key] = value
+            elif operator == "not_equals":
+                where_clauses.append(f"{col_expr} <> :{param_key}")
+                params[param_key] = value
+            elif operator == "startswith":
+                where_clauses.append(f"{col_expr} LIKE :{param_key}")
+                params[param_key] = f"{value}%"
+            elif operator == "greater_than":
+                where_clauses.append(f"{col_expr} > :{param_key}")
+                params[param_key] = value
+            elif operator == "less_than":
+                where_clauses.append(f"{col_expr} < :{param_key}")
+                params[param_key] = value
+            elif operator == "range":
+                if value2:
+                    where_clauses.append(
+                        f"{col_expr} >= :{param_key} AND {col_expr} <= :{param_key2}"
+                    )
+                    params[param_key] = value
+                    params[param_key2] = value2
+                else:
+                    where_clauses.append(f"{col_expr} = :{param_key}")
+                    params[param_key] = value
+            else:  # contains
+                where_clauses.append(f"{col_expr} LIKE :{param_key}")
+                params[param_key] = f"%{value}%"
 
     return where_clauses, params
 
@@ -107,14 +194,21 @@ def _extract_table_parts(qualified_table_name):
     return match.group(1), match.group(2), match.group(3)
 
 
+# SQL Server date/time data types (used to detect date columns)
+_DATE_TYPES = frozenset([
+    'date', 'datetime', 'datetime2', 'smalldatetime', 'datetimeoffset', 'time',
+])
+
+
 def _fetch_table_columns(db, qualified_table_name, allowed_columns=None):
-    """Return ordered column list from INFORMATION_SCHEMA for a configured table."""
+    """Return (ordered column list, column_types dict) from INFORMATION_SCHEMA."""
     _, schema_name, table_name = _extract_table_parts(qualified_table_name)
     if not schema_name or not table_name:
-        return sorted(list(allowed_columns or []))
+        cols = sorted(list(allowed_columns or []))
+        return cols, {}
 
     sql = """
-        SELECT COLUMN_NAME
+        SELECT COLUMN_NAME, DATA_TYPE
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_SCHEMA = :schema_name
           AND TABLE_NAME = :table_name
@@ -126,36 +220,48 @@ def _fetch_table_columns(db, qualified_table_name, allowed_columns=None):
             "schema_name": schema_name,
             "table_name": table_name,
         })
-        columns = [row._mapping.get("COLUMN_NAME") for row in result.fetchall()]
+        rows = result.fetchall()
 
-    columns = [c for c in columns if c]
+    columns = []
+    column_types = {}
+    for row in rows:
+        col_name = row._mapping.get("COLUMN_NAME")
+        data_type = (row._mapping.get("DATA_TYPE") or "").lower()
+        if not col_name:
+            continue
+        columns.append(col_name)
+        column_types[col_name] = data_type
+
     if allowed_columns:
         allowed = set(allowed_columns)
         columns = [c for c in columns if c in allowed]
+        column_types = {k: v for k, v in column_types.items() if k in allowed}
 
     if not columns:
-        return sorted(list(allowed_columns or []))
-    return columns
+        cols = sorted(list(allowed_columns or []))
+        return cols, {}
+    return columns, column_types
 
 
 def _resolve_allowed_columns(db, table_config):
-    """Resolve allowed columns from config or metadata fallback."""
+    """Resolve allowed columns and types from config or metadata fallback."""
     configured_allowed = table_config.get('allowed_columns')
-    return _fetch_table_columns(
+    columns, column_types = _fetch_table_columns(
         db=db,
         qualified_table_name=table_config['table_name'],
         allowed_columns=configured_allowed,
     )
+    return columns, column_types
 
 
 def _resolve_transaction_allowed_columns(db):
-    """Resolve transaction columns from DB metadata with legacy fallback."""
-    columns = _fetch_table_columns(
+    """Resolve transaction columns and types from DB metadata."""
+    columns, column_types = _fetch_table_columns(
         db=db,
         qualified_table_name=TRANSACTION_TABLE,
         allowed_columns=None,
     )
-    return columns or []
+    return columns or [], column_types
 
 
 def _execute_paginated_query(db, base_sql, where_clauses, params, page, page_size, order_by_sql):
@@ -213,17 +319,20 @@ def api_transaction_columns():
     logger = current_app.app_logger
 
     try:
-        columns = _resolve_transaction_allowed_columns(db)
+        columns, column_types = _resolve_transaction_allowed_columns(db)
+        date_columns = [c for c, t in column_types.items() if t in _DATE_TYPES]
         logger.info(f"GET /api/transaction/columns -> {len(columns)} column(s)")
         return jsonify({
             "success": True,
             "columns": columns,
+            "date_columns": date_columns,
         })
     except Exception as exc:
         logger.error(f"Failed to fetch transaction columns: {exc}")
         return jsonify({
             "success": False,
             "columns": [],
+            "date_columns": [],
             "error": "Cannot load columns from metadata",
         }), 200
 
@@ -252,12 +361,13 @@ def api_transaction_search():
 
     logger.info(f"POST /api/transaction/search — {len(conditions)} condition(s)")
 
-    allowed_columns = _resolve_transaction_allowed_columns(db)
+    allowed_columns, column_types = _resolve_transaction_allowed_columns(db)
 
     where_clauses, params = _build_search_filters(
         conditions=conditions,
         allowed_columns=allowed_columns,
         logger=logger,
+        column_types=column_types,
     )
 
     base_sql = f"SELECT * FROM {TRANSACTION_TABLE}"
@@ -299,11 +409,13 @@ def api_generic_search_columns(table_id):
 
     table_config = SEARCH_TABLES[table_id]
     try:
-        columns = _resolve_allowed_columns(db=db, table_config=table_config)
+        columns, column_types = _resolve_allowed_columns(db=db, table_config=table_config)
+        date_columns = [c for c, t in column_types.items() if t in _DATE_TYPES]
         logger.info(f"GET /api/search/{table_id}/columns -> {len(columns)} column(s)")
         return jsonify({
             "success": True,
             "columns": columns,
+            "date_columns": date_columns,
         })
     except Exception as exc:
         logger.error(f"Failed to fetch columns for {table_id}: {exc}")
@@ -311,6 +423,7 @@ def api_generic_search_columns(table_id):
         return jsonify({
             "success": False,
             "columns": sorted(list(fallback)),
+            "date_columns": [],
             "error": "Cannot load columns from metadata",
         }), 200
 
@@ -389,7 +502,7 @@ def api_generic_search(table_id):
 
     table_config = SEARCH_TABLES[table_id]
     table_name = table_config['table_name']
-    allowed_columns = _resolve_allowed_columns(db=db, table_config=table_config)
+    allowed_columns, column_types = _resolve_allowed_columns(db=db, table_config=table_config)
 
     body       = request.get_json(silent=True) or {}
     conditions = body.get("conditions", [])
@@ -401,6 +514,7 @@ def api_generic_search(table_id):
         conditions=conditions,
         allowed_columns=allowed_columns,
         logger=logger,
+        column_types=column_types,
     )
 
     base_sql = f"SELECT * FROM {table_name}"

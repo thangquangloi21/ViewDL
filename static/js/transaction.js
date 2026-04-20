@@ -51,9 +51,15 @@ const TRANSACTION_VIEW_COLUMNS = [
 ];
 
 const TRANSACTION_OPERATORS = [
-    { value: 'contains',   label: 'contains'    },
-    { value: 'equals',     label: 'equals'      },
-    { value: 'startswith', label: 'starts with' },
+    { value: 'equals',       label: 'equals'      },
+    { value: 'not_equals',   label: 'not equals'  },
+    { value: 'contains',     label: 'contains'    },
+    { value: 'range',        label: 'range'       },
+    { value: 'startswith',   label: 'starts at'   },
+    { value: 'greater_than', label: 'greater than'},
+    { value: 'less_than',    label: 'less than'   },
+    { value: 'is_null',      label: 'is null'     },
+    { value: 'is_not_null',  label: 'is not null' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -84,12 +90,23 @@ let txTotalRows      = 0;
 let txTotalPages     = 0;
 let txLastConditions = [];
 let txSearchColumns  = [...DEFAULT_TRANSACTION_SEARCH_COLUMNS];
+let txDateColumns    = new Set();
 
 function txGetEffectivePageSize(totalRows) {
     if (txPageSizeMode === 'all') {
         return Math.max(totalRows || 0, 1);
     }
     return txPageSize;
+}
+
+function txPopulateOperators(selectEl, operators) {
+    selectEl.innerHTML = '';
+    operators.forEach(op => {
+        const opt = document.createElement('option');
+        opt.value = op.value;
+        opt.textContent = op.label;
+        selectEl.appendChild(opt);
+    });
 }
 
 function txGetRenderableColumns(sampleRow) {
@@ -241,6 +258,10 @@ async function txLoadSearchColumns() {
         } else {
             txSearchColumns = [...DEFAULT_TRANSACTION_SEARCH_COLUMNS];
         }
+
+        // Store date columns for input type switching
+        const dateCols = Array.isArray(result?.date_columns) ? result.date_columns : [];
+        txDateColumns = new Set(dateCols);
     } catch (err) {
         console.warn('Cannot load transaction columns from API, fallback to defaults:', err);
         txSearchColumns = [...DEFAULT_TRANSACTION_SEARCH_COLUMNS];
@@ -339,7 +360,7 @@ async function txLoadDefaultData(targetPage = 1) {
     if (txDOM.tbody) txDOM.tbody.innerHTML = '';
 
     try {
-        const response = await fetch(`/api/transaction?limit=10000`);
+        const response = await fetch(`/api/transaction?limit=500`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
@@ -394,33 +415,112 @@ function txAddCondition() {
     // Operator select
     const opSel = document.createElement('select');
     opSel.className = 'tx-op';
-    TRANSACTION_OPERATORS.forEach(op => {
-        const opt = document.createElement('option');
-        opt.value = op.value;
-        opt.textContent = op.label;
-        opSel.appendChild(opt);
-    });
+    txPopulateOperators(opSel, TRANSACTION_OPERATORS);
 
     // Value input
     const valInput = document.createElement('input');
     valInput.type        = 'text';
     valInput.className   = 'tx-val';
-    valInput.placeholder = 'Nhập giá trị...';
+    valInput.placeholder = '';
 
-    // Allow search on Enter key
     valInput.addEventListener('keydown', e => {
         if (e.key === 'Enter') txPerformSearch();
     });
 
-    // Remove button
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = '−';
-    removeBtn.className   = 'btn btn-remove';
-    removeBtn.setAttribute('aria-label', 'Xoá điều kiện');
-    removeBtn.addEventListener('click', () => row.remove());
+    // Clear value button
+    const clearValBtn = document.createElement('button');
+    clearValBtn.type = 'button';
+    clearValBtn.className = 'btn-icon btn-clear-val';
+    clearValBtn.innerHTML = '✕';
+    clearValBtn.setAttribute('aria-label', 'Xoá giá trị');
+    clearValBtn.addEventListener('click', () => {
+        valInput.value = '';
+        valInput2.value = '';
+        valInput.focus();
+    });
 
-    row.append(colSel, opSel, valInput, removeBtn);
+    // Range separator (hidden by default, shown for range operator)
+    const rangeSep = document.createElement('span');
+    rangeSep.className = 'tx-range-sep hidden';
+    rangeSep.textContent = '-';
+
+    // Second value input (for range, hidden by default)
+    const valInput2 = document.createElement('input');
+    valInput2.type = 'text';
+    valInput2.className = 'tx-val2 hidden';
+    valInput2.placeholder = '';
+    valInput2.addEventListener('keydown', e => {
+        if (e.key === 'Enter') txPerformSearch();
+    });
+
+    // Operator change handler — toggle inputs based on operator
+    const updateInputVisibility = () => {
+        const op = opSel.value;
+        const isNullOp = (op === 'is_null' || op === 'is_not_null');
+        const isRange = (op === 'range');
+
+        valInput.disabled = isNullOp;
+        valInput2.disabled = isNullOp;
+        clearValBtn.disabled = isNullOp;
+
+        rangeSep.classList.toggle('hidden', !isRange);
+        valInput2.classList.toggle('hidden', !isRange);
+
+        if (isNullOp) {
+            valInput.value = '';
+            valInput2.value = '';
+        }
+        if (!isRange) {
+            valInput2.value = '';
+        }
+    };
+
+    opSel.addEventListener('change', updateInputVisibility);
+
+    // Column change handler — update placeholder for date columns
+    colSel.addEventListener('change', () => {
+        const selectedCol = colSel.value;
+        const isDate = txDateColumns.has(selectedCol);
+        valInput.placeholder = isDate ? 'dd/mm/yyyy' : '';
+        valInput2.placeholder = isDate ? 'dd/mm/yyyy' : '';
+        valInput.value = '';
+        valInput2.value = '';
+    });
+
+    // Add condition button (+)
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'btn-icon btn-add-row';
+    addBtn.innerHTML = '+';
+    addBtn.setAttribute('aria-label', 'Thêm điều kiện');
+    addBtn.addEventListener('click', txAddCondition);
+
+    // Remove condition button (✕)
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn-icon btn-remove-row';
+    removeBtn.innerHTML = '✕';
+    removeBtn.setAttribute('aria-label', 'Xoá điều kiện');
+    removeBtn.addEventListener('click', () => {
+        row.remove();
+        txUpdateRemoveButtons();
+    });
+
+    row.append(colSel, opSel, valInput, clearValBtn, rangeSep, valInput2, addBtn, removeBtn);
     txDOM.conditionsDiv.appendChild(row);
+    txUpdateRemoveButtons();
+}
+
+// ---------------------------------------------------------------------------
+// Enable/disable remove buttons based on row count
+// ---------------------------------------------------------------------------
+function txUpdateRemoveButtons() {
+    const rows = txDOM.conditionsDiv.querySelectorAll('.tx-condition');
+    const only = rows.length <= 1;
+    rows.forEach(r => {
+        const btn = r.querySelector('.btn-remove-row');
+        if (btn) btn.disabled = only;
+    });
 }
 
 // ---------------------------------------------------------------------------
@@ -439,9 +539,18 @@ async function txPerformSearch(targetPage = 1) {
         txDOM.conditionsDiv.querySelectorAll('[id^="tx-condition-"]').forEach(row => {
             const col = row.querySelector('.tx-col')?.value?.trim();
             const op  = row.querySelector('.tx-op')?.value?.trim();
-            const val = row.querySelector('.tx-val')?.value?.trim();
-            if (col && val) {
-                conditions.push({ column: col, operator: op || 'contains', value: val });
+            const val = row.querySelector('.tx-val')?.value?.trim() || '';
+            const val2 = row.querySelector('.tx-val2')?.value?.trim() || '';
+
+            if (!col) return;
+
+            // is_null / is_not_null don't need a value
+            if (op === 'is_null' || op === 'is_not_null') {
+                conditions.push({ column: col, operator: op, value: '', value2: '' });
+            } else if (val) {
+                const cond = { column: col, operator: op || 'contains', value: val };
+                if (op === 'range' && val2) cond.value2 = val2;
+                conditions.push(cond);
             }
         });
         txLastConditions = conditions;
@@ -461,7 +570,7 @@ async function txPerformSearch(targetPage = 1) {
         const response = await fetch('/api/transaction/search', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ conditions, limit: 10000 }),
+            body:    JSON.stringify({ conditions, limit: 500 }),
         });
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -507,8 +616,11 @@ async function txPerformSearch(targetPage = 1) {
 function txClearAll() {
     if (!txDOM.conditionsDiv) return;
 
-    txDOM.conditionsDiv.querySelectorAll('.tx-val').forEach(i => { i.value = ''; });
+    txDOM.conditionsDiv.querySelectorAll('.tx-val').forEach(i => { i.value = ''; i.disabled = false; });
+    txDOM.conditionsDiv.querySelectorAll('.tx-val2').forEach(i => { i.value = ''; i.disabled = false; i.classList.add('hidden'); });
+    txDOM.conditionsDiv.querySelectorAll('.tx-range-sep').forEach(s => { s.classList.add('hidden'); });
     txDOM.conditionsDiv.querySelectorAll('.tx-col').forEach(s => { s.value = ''; });
+    txDOM.conditionsDiv.querySelectorAll('.tx-op').forEach(s => { s.selectedIndex = 0; });
 
     txAllData = [];
     txLastConditions = [];

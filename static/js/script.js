@@ -116,6 +116,7 @@ menuItems.forEach(item => {
     });
 });
 
+
 // ---------------------------------------------------------------------------
 // Dashboard function cards — click to navigate
 // ---------------------------------------------------------------------------
@@ -130,6 +131,7 @@ document.querySelectorAll('.fn-card[data-view]').forEach(card => {
         }
     });
 });
+
 
 // ---------------------------------------------------------------------------
 // "Other" views — simple client-side filter over sample data

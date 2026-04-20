@@ -14,9 +14,15 @@
 const searchInstances = {};
 
 const OPERATORS = [
-    { value: 'contains',   label: 'contains'    },
-    { value: 'equals',     label: 'equals'      },
-    { value: 'startswith', label: 'starts with' },
+    { value: 'equals',       label: 'equals'      },
+    { value: 'not_equals',   label: 'not equals'  },
+    { value: 'contains',     label: 'contains'    },
+    { value: 'range',        label: 'range'       },
+    { value: 'startswith',   label: 'starts at'   },
+    { value: 'greater_than', label: 'greater than'},
+    { value: 'less_than',    label: 'less than'   },
+    { value: 'is_null',      label: 'is null'     },
+    { value: 'is_not_null',  label: 'is not null' },
 ];
 
 function shFormatDateToDDMMYYYY(dateObj) {
@@ -73,6 +79,7 @@ class SearchHandler {
     constructor(tableId, columns) {
         this.tableId = tableId;
         this.columns = columns || [];
+        this.dateColumns = new Set();
         this.conditionCount = 0;
         this.allData = [];
         this.currentPage = 1;
@@ -93,6 +100,16 @@ class SearchHandler {
             return Math.max(totalRows || 0, 1);
         }
         return this.pageSize;
+    }
+
+    _populateOperators(selectEl, operators) {
+        selectEl.innerHTML = '';
+        operators.forEach(op => {
+            const opt = document.createElement('option');
+            opt.value = op.value;
+            opt.textContent = op.label;
+            selectEl.appendChild(opt);
+        });
     }
 
     /**
@@ -163,7 +180,7 @@ class SearchHandler {
         if (this.dom.tbody) this.dom.tbody.innerHTML = '';
 
         try {
-            const response = await fetch(`/api/search/${this.tableId}/data?limit=10000`);
+            const response = await fetch(`/api/search/${this.tableId}/data?limit=500`);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
             const result = await response.json();
@@ -203,6 +220,9 @@ class SearchHandler {
             if (cols.length > 0) {
                 this.columns = cols;
             }
+            // Store date columns for input type switching
+            const dateCols = Array.isArray(result?.date_columns) ? result.date_columns : [];
+            this.dateColumns = new Set(dateCols);
         } catch (err) {
             console.warn(`Cannot load columns for ${this.tableId}, fallback to defaults:`, err);
         }
@@ -243,17 +263,33 @@ class SearchHandler {
         this.dom.pageSizeSel = pager.querySelector('.pager-size');
 
         this.dom.prevBtn?.addEventListener('click', () => {
-            if (this.currentPage > 1) this.performSearch(this.currentPage - 1);
+            if (this.currentPage > 1) {
+                if (this.lastConditions.length > 0) {
+                    this.performSearch(this.currentPage - 1);
+                } else {
+                    this.loadDefaultData(this.currentPage - 1);
+                }
+            }
         });
 
         this.dom.nextBtn?.addEventListener('click', () => {
-            if (this.currentPage < this.totalPages) this.performSearch(this.currentPage + 1);
+            if (this.currentPage < this.totalPages) {
+                if (this.lastConditions.length > 0) {
+                    this.performSearch(this.currentPage + 1);
+                } else {
+                    this.loadDefaultData(this.currentPage + 1);
+                }
+            }
         });
 
         this.dom.pageSizeSel?.addEventListener('change', () => {
             this.pageSizeMode = this.dom.pageSizeSel.value;
             this.pageSize = Number(this.pageSizeMode) || 100;
-            this.performSearch(1);
+            if (this.lastConditions.length > 0) {
+                this.performSearch(1);
+            } else {
+                this.loadDefaultData(1);
+            }
         });
     }
 
@@ -359,31 +395,112 @@ class SearchHandler {
         // Operator select
         const opSel = document.createElement('select');
         opSel.className = 'tx-op';
-        OPERATORS.forEach(op => {
-            const opt = document.createElement('option');
-            opt.value = op.value;
-            opt.textContent = op.label;
-            opSel.appendChild(opt);
-        });
+        this._populateOperators(opSel, OPERATORS);
 
         // Value input
         const valInput = document.createElement('input');
         valInput.type = 'text';
         valInput.className = 'tx-val';
-        valInput.placeholder = 'Nhập giá trị...';
+        valInput.placeholder = '';
         valInput.addEventListener('keydown', e => {
             if (e.key === 'Enter') this.performSearch();
         });
 
-        // Remove button
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = '−';
-        removeBtn.className = 'btn btn-remove';
-        removeBtn.setAttribute('aria-label', 'Xoá điều kiện');
-        removeBtn.addEventListener('click', () => row.remove());
+        // Clear value button
+        const clearValBtn = document.createElement('button');
+        clearValBtn.type = 'button';
+        clearValBtn.className = 'btn-icon btn-clear-val';
+        clearValBtn.innerHTML = '✕';
+        clearValBtn.setAttribute('aria-label', 'Xoá giá trị');
+        clearValBtn.addEventListener('click', () => {
+            valInput.value = '';
+            valInput2.value = '';
+            valInput.focus();
+        });
 
-        row.append(colSel, opSel, valInput, removeBtn);
+        // Range separator (hidden by default, shown for range operator)
+        const rangeSep = document.createElement('span');
+        rangeSep.className = 'tx-range-sep hidden';
+        rangeSep.textContent = '-';
+
+        // Second value input (for range, hidden by default)
+        const valInput2 = document.createElement('input');
+        valInput2.type = 'text';
+        valInput2.className = 'tx-val2 hidden';
+        valInput2.placeholder = '';
+        valInput2.addEventListener('keydown', e => {
+            if (e.key === 'Enter') this.performSearch();
+        });
+
+        // Operator change handler — toggle inputs based on operator
+        const updateInputVisibility = () => {
+            const op = opSel.value;
+            const isNullOp = (op === 'is_null' || op === 'is_not_null');
+            const isRange = (op === 'range');
+
+            valInput.disabled = isNullOp;
+            valInput2.disabled = isNullOp;
+            clearValBtn.disabled = isNullOp;
+
+            rangeSep.classList.toggle('hidden', !isRange);
+            valInput2.classList.toggle('hidden', !isRange);
+
+            if (isNullOp) {
+                valInput.value = '';
+                valInput2.value = '';
+            }
+            if (!isRange) {
+                valInput2.value = '';
+            }
+        };
+
+        opSel.addEventListener('change', updateInputVisibility);
+
+        // Column change handler — update placeholder for date columns
+        const self = this;
+        colSel.addEventListener('change', () => {
+            const selectedCol = colSel.value;
+            const isDate = self.dateColumns.has(selectedCol);
+            valInput.placeholder = isDate ? 'dd/mm/yyyy' : '';
+            valInput2.placeholder = isDate ? 'dd/mm/yyyy' : '';
+            valInput.value = '';
+            valInput2.value = '';
+        });
+
+        // Add condition button (+)
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = 'btn-icon btn-add-row';
+        addBtn.innerHTML = '+';
+        addBtn.setAttribute('aria-label', 'Thêm điều kiện');
+        addBtn.addEventListener('click', () => this.addCondition());
+
+        // Remove condition button (✕)
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn-icon btn-remove-row';
+        removeBtn.innerHTML = '✕';
+        removeBtn.setAttribute('aria-label', 'Xoá điều kiện');
+        removeBtn.addEventListener('click', () => {
+            row.remove();
+            this._updateRemoveButtons();
+        });
+
+        row.append(colSel, opSel, valInput, clearValBtn, rangeSep, valInput2, addBtn, removeBtn);
         this.dom.conditionsDiv.appendChild(row);
+        this._updateRemoveButtons();
+    }
+
+    /**
+     * Enable/disable remove buttons based on row count
+     */
+    _updateRemoveButtons() {
+        const rows = this.dom.conditionsDiv.querySelectorAll('.search-condition');
+        const only = rows.length <= 1;
+        rows.forEach(r => {
+            const btn = r.querySelector('.btn-remove-row');
+            if (btn) btn.disabled = only;
+        });
     }
 
     /**
@@ -404,9 +521,18 @@ class SearchHandler {
             this.dom.conditionsDiv.querySelectorAll(`[id^="${this.tableId}-condition-"]`).forEach(row => {
                 const col = row.querySelector('.tx-col')?.value?.trim();
                 const op = row.querySelector('.tx-op')?.value?.trim();
-                const val = row.querySelector('.tx-val')?.value?.trim();
-                if (col && val) {
-                    conditions.push({ column: col, operator: op || 'contains', value: val });
+                const val = row.querySelector('.tx-val')?.value?.trim() || '';
+                const val2 = row.querySelector('.tx-val2')?.value?.trim() || '';
+
+                if (!col) return;
+
+                // is_null / is_not_null don't need a value
+                if (op === 'is_null' || op === 'is_not_null') {
+                    conditions.push({ column: col, operator: op, value: '', value2: '' });
+                } else if (val) {
+                    const cond = { column: col, operator: op || 'contains', value: val };
+                    if (op === 'range' && val2) cond.value2 = val2;
+                    conditions.push(cond);
                 }
             });
             this.lastConditions = conditions;
@@ -427,7 +553,7 @@ class SearchHandler {
             const response = await fetch(`/api/search/${this.tableId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ conditions, limit: 10000 }),
+                body: JSON.stringify({ conditions, limit: 500 }),
             });
 
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -477,8 +603,11 @@ class SearchHandler {
     clearAll() {
         if (!this.dom.conditionsDiv) return;
 
-        this.dom.conditionsDiv.querySelectorAll('.tx-val').forEach(i => { i.value = ''; });
+        this.dom.conditionsDiv.querySelectorAll('.tx-val').forEach(i => { i.value = ''; i.disabled = false; });
+        this.dom.conditionsDiv.querySelectorAll('.tx-val2').forEach(i => { i.value = ''; i.disabled = false; i.classList.add('hidden'); });
+        this.dom.conditionsDiv.querySelectorAll('.tx-range-sep').forEach(s => { s.classList.add('hidden'); });
         this.dom.conditionsDiv.querySelectorAll('.tx-col').forEach(s => { s.value = ''; });
+        this.dom.conditionsDiv.querySelectorAll('.tx-op').forEach(s => { s.selectedIndex = 0; });
 
         this.lastConditions = [];
         this.loadDefaultData(1);
